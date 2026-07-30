@@ -1,63 +1,181 @@
-# Philosophy
+# DTML Philosophy
 
-## The gap DTML exists to close
+> **From imagination to manufacture.**
 
-AI image generation has removed the need for a professional designer or
-third-party design software to *imagine* a piece of furniture. Anyone can
-now generate a photorealistic vision of their dream wardrobe or media wall
-in seconds. What AI image generation cannot do — and was never trained to
-do — is guarantee that vision is anchored in real construction methods:
-real material thicknesses, real hardware, real joinery, real CNC
-tolerances.
+---
 
-DTML exists to close that specific gap: **turning an uncontrolled,
-externally-generated vision into a standardised, manufacturable reality**,
-without pretending the gap doesn't exist.
+## Why DTML Exists
 
-## The central tension
+For centuries, furniture has been created through a conversation between imagination and craftsmanship.
 
-Every AI-generated image will contain details that don't map cleanly onto
-a standardised parts library — an odd shelf spacing, an unusual drawer
-proportion, a rail height that doesn't match a fixed KD geometry. At that
-point there are exactly two honest choices:
+A customer imagines a space.
 
-1. **Snap to the nearest standardised equivalent.** Fast, cheap, always
-   buildable — but risks quietly editing the customer's vision without
-   them fully realising it.
-2. **Flex the equations to hit the exact proportion.** True to the
-   picture, but breaks standardisation, and every job risks becoming a
-   one-off with its own tolerances to verify.
+A designer interprets that vision.
 
-DTML's answer is not to resolve this tension by picking a side — it's to
-make the tradeoff **visible and confirmed** rather than hidden. The
-product being sold isn't "we will build exactly what the AI showed you."
-It's "we will build the most faithful standardised interpretation of what
-you showed us, and we will show you exactly where and how we adapted it."
+An engineer transforms it into something that can be manufactured.
 
-## Why narration-first, not inference-first
+A skilled craftsperson brings it to life.
 
-The same tension shows up in how DTML itself gets built. It would be
-tempting to point an AI at an existing DWG/DXF library and have it infer
-the construction rules automatically — hinge offsets, shelf-pin patterns,
-KD fixing positions. This is exactly the wrong approach, for the same
-reason: geometry alone is ambiguous. A hole at a given position and
-diameter doesn't say what it's for, or whether it's a deliberate rule or a
-one-off deviation from a specific job. Inferring rules from raw geometry
-stacks assumption on assumption — precisely the hallucination risk this
-whole project is trying to engineer out of the customer-facing side.
+Today, artificial intelligence has fundamentally changed the first step.
 
-Instead: a human who knows the real construction method states the rule
-explicitly. Existing drawings are then used to *verify* that rule against
-reality, not to originate it. See `KnowledgeCapture.md` for the full
-methodology.
+For the first time, anyone can create beautiful furniture concepts without needing design software or technical knowledge. A simple description or image can generate an inspiring vision in seconds.
 
-## Trust as the product
+Yet there remains a significant gap.
 
-The classifier confidence score, the delta/approval view, and the
-narration-first library are not separate features bolted onto a
-manufacturing pipeline — they are the actual differentiation. The
-CAD/CAM/nesting pipeline that turns confirmed geometry into CNC output is
-a solved industrial problem (imos, Cyncly, PolyBoard already do it well).
-The unsolved, defensible part is the honest reconciliation between an
-uncontrolled AI vision and a standardised, buildable interpretation of it
-— made visible to the customer rather than silently absorbed.
+The generated image rarely understands materials, construction methods, structural requirements, manufacturing processes or installation constraints.
+
+The customer's imagination has accelerated.
+
+Manufacturing has not.
+
+DTML exists to bridge that gap.
+
+---
+
+## The Missing Language
+
+Customers communicate visually.
+
+Manufacturers communicate technically.
+
+One speaks in inspiration.
+
+The other speaks in dimensions, machining operations, hardware and assembly.
+
+Until now there has been no common language capable of translating between these two worlds.
+
+DTML is that language.
+
+It captures manufacturing knowledge in a structured form that allows computers to understand not only what furniture looks like, but how it should be engineered, manufactured and assembled.
+
+---
+
+## Manufacturing Knowledge Matters
+
+A production drawing is not knowledge.
+
+A CNC program is not knowledge.
+
+A DXF file is not knowledge.
+
+They are all outputs.
+
+The real intellectual property of a manufacturing business lies elsewhere.
+
+It exists in years of accumulated decisions.
+
+Why a shelf should be supported after a certain span.
+
+Why one fixing is preferred over another.
+
+Why one construction method produces a stronger cabinet.
+
+Why installation is easier with one sequence than another.
+
+These decisions often exist only in the experience of skilled people.
+
+DTML exists to preserve that experience.
+
+---
+
+## Standardisation Creates Freedom
+
+It may seem counterintuitive, but unlimited design freedom is achieved through disciplined engineering.
+
+Customers should be free to imagine almost anything.
+
+Manufacturing should remain consistent.
+
+Rather than inventing new construction methods for every project, DTML seeks to create a carefully engineered library of reusable knowledge.
+
+Features become Parts.
+
+Parts become Modules.
+
+Modules become Furniture.
+
+This allows endless visual variation while maintaining reliable manufacturing.
+
+---
+
+## Human Creativity. Computer Precision.
+
+DTML does not replace creativity.
+
+It amplifies it.
+
+The customer provides imagination.
+
+The engineer provides knowledge.
+
+The computer provides consistency.
+
+Each contributes what they do best.
+
+---
+
+## Explainability Above Automation
+
+Automation should never become a black box.
+
+Every engineering decision should be understandable.
+
+If the system divides a wardrobe into two cabinets, there should be a reason.
+
+If a shelf becomes thicker, there should be a reason.
+
+If additional support is introduced, there should be a reason.
+
+Trust is built through transparency.
+
+---
+
+## Knowledge Before Geometry
+
+Geometry is temporary.
+
+Knowledge is permanent.
+
+A DXF, render or CNC program can always be regenerated.
+
+Manufacturing knowledge should never need to be rediscovered.
+
+DTML treats geometry as a representation of knowledge, not as knowledge itself.
+
+---
+
+## Learning Never Stops
+
+Every completed project teaches something.
+
+Every installation reveals opportunities for improvement.
+
+Every manufacturing challenge expands the knowledge base.
+
+DTML is designed to grow alongside the people who use it.
+
+Its value increases not because the software becomes more complicated, but because the engineering knowledge becomes richer.
+
+---
+
+## Our Belief
+
+We believe the future of bespoke furniture is not automated design.
+
+It is automated understanding.
+
+Understanding the customer's intent.
+
+Understanding manufacturing.
+
+Understanding the relationship between the two.
+
+When those two worlds can communicate without losing information, bespoke furniture becomes faster to design, easier to manufacture and more accessible to everyone.
+
+That is the purpose of DTML.
+
+---
+
+## Guiding Statement
+
+> **DTML exists to transform human imagination into manufacturable reality by capturing engineering knowledge in a language that both people and computers can understand.**
