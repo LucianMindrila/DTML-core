@@ -11,7 +11,7 @@ two questions only — see the module docstring and
 it deliberately does not check.
 
 ```bash
-# Every schemas/*.schema.yaml is a valid, fully-resolvable Draft 2020-12 schema
+# Every schemas/*.schema.yaml is a valid Draft 2020-12 schema, with every $ref it contains statically resolved
 python tools/validate_schema.py --schemas
 
 # A YAML instance validates against the schema it declares via x-dtml-schema
@@ -20,7 +20,7 @@ python tools/validate_schema.py tests/fixtures/valid/panel-with-shelf-pin-array.
 
 Requires `jsonschema>=4.18` and `PyYAML` — see `../requirements-dev.txt`.
 
-Expected future contents: library linting (e.g. flagging any
-`source_confidence: extracted_unconfirmed` entry that's somehow been
-referenced by a production Module), and DXF diff/comparison utilities
-supporting the verification workflow in `../tests/`.
+Expected future contents: library linting (e.g. flagging any object whose
+`provenance.confidence` is `unconfirmed` that's somehow been referenced by
+a production Module), and DXF diff/comparison utilities supporting the
+verification workflow in `../tests/`.

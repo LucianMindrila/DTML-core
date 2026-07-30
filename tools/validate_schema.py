@@ -5,8 +5,9 @@ This is the first executable conformance check for the schema layer — it
 is deliberately not the expression engine, resolver, or DXF generator. It
 answers two questions only:
 
-1. Is every schemas/*.schema.yaml file a well-formed, fully-resolvable
-   Draft 2020-12 JSON Schema?
+1. Is every schemas/*.schema.yaml file a well-formed Draft 2020-12 JSON
+   Schema, with every $ref it contains (however deeply nested) resolving
+   to a real target?
 2. Does a given instance document validate against the schema it declares
    (via its `x-dtml-schema` field)?
 
@@ -23,6 +24,7 @@ from pathlib import Path
 import yaml
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
+from referencing.exceptions import Unresolvable
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCHEMAS_DIR = REPO_ROOT / "schemas"
@@ -44,6 +46,32 @@ def build_registry(contents_by_path: dict[Path, dict]) -> Registry:
         if "$id" in contents
     ]
     return Registry().with_resources(resources)
+
+
+def walk_refs(node, path="$"):
+    """Yield (ref, json-path) for every {"$ref": ...} anywhere in a schema,
+    however deeply nested — including under properties/items/allOf branches
+    that validating a single instance would never visit."""
+    if isinstance(node, dict):
+        ref = node.get("$ref")
+        if isinstance(ref, str):
+            yield ref, path
+        for key, value in node.items():
+            yield from walk_refs(value, f"{path}.{key}")
+    elif isinstance(node, list):
+        for i, value in enumerate(node):
+            yield from walk_refs(value, f"{path}[{i}]")
+
+
+def check_refs_resolve(contents: dict, registry: Registry) -> list[str]:
+    resolver = registry.resolver(base_uri=contents["$id"])
+    messages = []
+    for ref, loc in walk_refs(contents):
+        try:
+            resolver.lookup(ref)
+        except Unresolvable as exc:
+            messages.append(f"  {loc}: $ref '{ref}' does not resolve ({exc})")
+    return messages
 
 
 def check_schemas() -> int:
@@ -73,15 +101,16 @@ def check_schemas() -> int:
             # reference graph, so there is nothing to resolve.
             continue
         checked_for_refs += 1
-        try:
-            validator = Draft202012Validator(contents, registry=registry)
-            # Force $ref resolution to surface broken cross-file pointers;
-            # the instance ({}) itself is irrelevant, only resolution matters.
-            list(validator.iter_errors({}))
-        except Exception as exc:
+        # Statically walk every $ref in the document and resolve it against
+        # the registry — deliberately not "validate against {} and see what
+        # gets touched", since a $ref nested under an optional property
+        # (e.g. properties.material.$ref) is never visited by validating an
+        # empty instance and a break there would go unnoticed.
+        problems = check_refs_resolve(contents, registry)
+        if problems:
             errors += 1
             print(f"UNRESOLVABLE REFERENCE in {path.name}")
-            print(f"  {exc}\n")
+            print("\n".join(problems) + "\n")
 
     if errors:
         print(f"{errors} schema(s) have unresolvable $ref targets.")
@@ -89,7 +118,7 @@ def check_schemas() -> int:
 
     not_migrated = len(paths) - checked_for_refs
     print(f"All {len(paths)} schemas are valid Draft 2020-12 "
-          f"({checked_for_refs} fully resolvable, "
+          f"({checked_for_refs} with every $ref statically resolved, "
           f"{not_migrated} not yet on the $id/$ref convention).")
     return 0
 
@@ -152,7 +181,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--schemas", action="store_true",
-        help="Validate every schemas/*.schema.yaml file is a valid, fully-resolvable Draft 2020-12 schema.",
+        help="Validate every schemas/*.schema.yaml file is a valid Draft 2020-12 schema with every $ref statically resolved.",
     )
     parser.add_argument(
         "instance", nargs="?",

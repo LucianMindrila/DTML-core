@@ -20,7 +20,7 @@ $defs:
           The canonical dotted id of the referenced object, e.g.
           cuttingedgebespoke.material.birch_plywood.
       object_version:
-        type: string
+        $ref: "common.schema.yaml#/$defs/semantic_version"
         description: >
           The object_version of the referenced entry being pinned. Not
           schema_version — see SchemaConventions.md for the distinction.

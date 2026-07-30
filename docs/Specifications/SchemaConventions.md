@@ -87,6 +87,17 @@ ref: cuttingedgebespoke.material.birch_plywood
 object_version: "1.2.0"
 ```
 
+`object_version` is validated as a semver.org string
+(`common.schema.yaml#/$defs/semantic_version`), both on the object itself
+and everywhere a `reference` pins one — `object_version: banana` or
+`object_version: latest` are schema errors. `schema_version` is
+deliberately **not** constrained to semver: it's a free-form structure
+identifier (this document's own schemas currently use `"0.1"`, which
+isn't valid semver), tracking the shape of the schema rather than a
+released revision of a specific object. Revisit this if schema versioning
+ever needs the same ordering/comparison guarantees object versioning
+does.
+
 ## Provenance owns confidence
 
 There is exactly one place confidence lives: the `provenance` block

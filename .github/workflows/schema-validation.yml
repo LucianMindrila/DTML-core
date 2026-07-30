@@ -1,0 +1,42 @@
+name: Schema validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Check every schema is valid Draft 2020-12 with all $ref resolved
+        run: python tools/validate_schema.py --schemas
+
+      - name: Check valid fixtures and examples pass
+        run: |
+          set -e
+          for f in tests/fixtures/valid/*.yaml examples/*.yaml; do
+            echo "== $f =="
+            python tools/validate_schema.py "$f"
+          done
+
+      - name: Check invalid fixtures are correctly rejected
+        run: |
+          set -e
+          for f in tests/fixtures/invalid/*.yaml; do
+            echo "== $f =="
+            if python tools/validate_schema.py "$f"; then
+              echo "FAIL: $f was expected to be rejected but passed validation"
+              exit 1
+            fi
+          done

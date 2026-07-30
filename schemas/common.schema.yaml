@@ -5,6 +5,15 @@ $id: common.schema.yaml
 $schema: https://json-schema.org/draft/2020-12/schema
 $ref: "#/$defs/knowledge_object"
 $defs:
+  semantic_version:
+    type: string
+    pattern: "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    description: >
+      A semver.org version string. Used to pin object_version — the
+      revision of a specific knowledge object — never schema_version,
+      which is a free-form structure-version string (e.g. "0.1") and is
+      not required to be semver. See SchemaConventions.md.
+
   knowledge_object:
     type: object
     description: >
@@ -38,7 +47,7 @@ $defs:
         type: string
         description: "Which version of the schema structure this object conforms to."
       object_version:
-        type: string
+        $ref: "#/$defs/semantic_version"
         description: "Which revision of this knowledge object is being described."
       status:
         type: string
