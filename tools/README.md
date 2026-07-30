@@ -20,6 +20,30 @@ python tools/validate_schema.py examples/panel_with_shelf_pin_array.part.yaml
 
 Requires `jsonschema>=4.18` and `PyYAML` — see `../requirements-dev.txt`.
 
+## `resolve_part.py`
+
+CLI wrapper around `dtml.resolver.resolve_part()` — see
+`../docs/Specifications/ResolverSpecification.md`.
+
+```bash
+python tools/resolve_part.py examples/panel_with_shelf_pin_array.part.yaml --output resolved.yaml
+```
+
+## `render_dxf.py`
+
+CLI wrapper around `dxf.render.render_resolved_part()` — see
+`../docs/Specifications/DXFRendererSpecification.md`. Takes a resolved
+Part YAML document (the output of `resolve_part.py`, not a raw Part) and
+writes it out as a `.dxf` file. Deliberately doesn't resolve or validate
+anything itself; the two tools compose as separate steps:
+
+```bash
+python tools/resolve_part.py examples/panel_with_shelf_pin_array.part.yaml --output resolved.yaml
+python tools/render_dxf.py resolved.yaml --output panel.dxf
+```
+
+Requires `ezdxf>=1.3` — see `../requirements-dev.txt`.
+
 Expected future contents: library linting (e.g. flagging any object whose
 `provenance.confidence` is `unconfirmed` that's somehow been referenced by
 a production Module), and DXF diff/comparison utilities supporting the

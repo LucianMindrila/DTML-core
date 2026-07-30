@@ -49,5 +49,5 @@ jobs:
             python tools/validate_schema.py "$f"
           done
 
-      - name: Run resolver test suite
+      - name: Run pytest suite (resolver + DXF renderer)
         run: python -m pytest tests/ -v

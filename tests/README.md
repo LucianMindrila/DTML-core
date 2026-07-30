@@ -71,3 +71,17 @@ and its full ten-stage pipeline respectively. Run with:
 ```bash
 python -m pytest tests/ -v
 ```
+
+## `test_dxf_render.py`
+
+Covers `dxf.render.render_resolved_part()` (see
+`../docs/Specifications/DXFRendererSpecification.md`) — the thin DXF
+renderer one layer downstream of the resolver. Resolves the committed
+`examples/panel_with_shelf_pin_array.part.yaml` once via
+`dtml.resolver.resolve_part()`, then only ever inspects the rendered
+result through `ezdxf`'s modelspace query API: outline coordinates,
+per-layer hole count/diameter/centre, unit header variables, and the
+`DTML` XDATA metadata round-tripping through a save/reload cycle. One
+test asserts the acceptance criterion directly — that the renderer never
+touches the filesystem, i.e. never re-opens or re-parses a DTML source
+document from within the render path itself.
