@@ -55,6 +55,6 @@ than hidden. See `../Vision.md` and `../Philosophy.md` for full detail.
 
 ## Open questions
 
-- Long-term: does DTML stay internal to DT Solutions/Cutting Edge, or
+- Long-term: does DTML stay internal to Cutting Edge Bespoke, or
   become a licensable front-end for other manufacturers? Deferred to
   Phase 6 (`../Roadmap.md`).

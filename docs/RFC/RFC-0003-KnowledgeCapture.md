@@ -5,8 +5,8 @@ tooling)
 
 ## Context
 
-DTML's library needs to be populated from decades of real Cutting Edge /
-DT Solutions production knowledge, currently scattered across DWG/DXF
+DTML's library needs to be populated from decades of real Cutting Edge
+Bespoke production knowledge, currently scattered across DWG/DXF
 drawings (`PARTS.dwg`, `modules.dwg`, `order_form.dwg` and their DXF/PDF
 exports) with no consistent digital structure. The obvious approach —
 point an AI directly at these drawings and have it infer construction

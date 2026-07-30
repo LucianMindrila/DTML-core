@@ -45,7 +45,7 @@ CNC files — internal only, never customer-facing.
 
 ## Phase 6 — Commercial launch
 
-Start with DT Solutions / Cutting Edge as the only fulfilment path, prove
+Start with Cutting Edge Bespoke as the only fulfilment path, prove
 unit economics, then decide whether to license the front-end tool to
 other manufacturers.
 

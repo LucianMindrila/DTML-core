@@ -38,7 +38,7 @@ browser can call.
 
 ## What "done" looks like, directionally
 
-- A manufacturer (starting with DT Solutions / Cutting Edge) can take a
+- A manufacturer (starting with Cutting Edge Bespoke) can take a
   customer's two photos and constraints, and within minutes produce an
   approval-ready standardised design with an honest confidence/delta view
   — without a human designer manually re-drawing the vision from scratch.

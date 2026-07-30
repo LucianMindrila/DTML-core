@@ -1,7 +1,7 @@
 # Contributing to DTML
 
 This is a private, proprietary repository. "Contributing" here means
-internal collaborators (DT Solutions / Cutting Edge team, contracted
+internal collaborators (Cutting Edge Bespoke team, contracted
 developers) adding to the manufacturing brain, schemas, or tooling.
 
 ## The one rule that matters most: narration-first, not inference-first

@@ -1,72 +1,264 @@
-# DTML — Design-to-Manufacturing Language
+# DTML Core
 
-**DTML** is an AI-driven manufacturing language that transforms customer
-inspiration (an existing-space photo, an AI-generated vision image, and a
-set of room constraints) into fully engineered, manufacturable furniture —
-using a standardised library of components, engineering rules, and
-production knowledge.
+> **Design-to-Manufacture Language**
+>
+> A manufacturing language that translates customer imagination into engineered, manufacturable furniture.
 
-DTML is not a rendering tool. Photorealistic visualisation of a customer's
-idea is a solved, commoditised problem. DTML exists to solve the harder,
-unsolved problem behind it: turning that vision into a **dimensioned,
-buildable, CNC-ready production drawing** without silently guessing at
-construction details that don't actually exist in an AI-generated image.
+"From imagination to manufacture."
 
-## The core idea
+DTML is an open engineering specification for translating human design intent into manufacturable furniture.
 
-1. A customer uploads a photo of their existing space (with constraints —
-   windows, doors, sloped ceilings, sockets, radiators) and an AI-generated
-   image of their vision, plus the target envelope (width × height × depth).
-2. DTML classifies the vision into a set of known **Modules** (bay types —
-   hanging, drawer bank, shelving, shoe-rake, etc.), each built from
-   standardised **Parts**, governed by **Rules** (the equations relating
-   dimensions, hardware, and material thickness to each other), and dressed
-   in a chosen **Style** (finish, door style, handle, etc.).
-3. Every classification carries a confidence score. Low-confidence matches
-   are flagged for human/customer confirmation rather than silently
-   resolved.
-4. The customer sees a side-by-side **delta view**: their original AI image
-   next to the standardised interpretation, with any substitutions called
-   out in plain language. This is the approval gate.
-5. Only after approval does DTML generate the real manufacturing output —
-   dimensioned drawings, cut lists, hardware BOMs, and nested sheet
-   layouts — which stay internal to the manufacturer. The customer-facing
-   side of the product never receives dimensioned or nest-ready data; see
-   [`docs/Architecture.md`](docs/Architecture.md) for why that boundary is
-   structural, not just policy.
+It captures the knowledge that traditionally lives in the heads of experienced furniture makers and makes it available as a structured, reusable manufacturing language.
 
-## Where to start reading
+---
 
-| If you want to understand... | Read... |
-|---|---|
-| Why this project exists and the philosophy behind it | [`docs/Philosophy.md`](docs/Philosophy.md) |
-| The end-state product vision | [`docs/Vision.md`](docs/Vision.md) |
-| The non-negotiable design principles | [`docs/CorePrinciples.md`](docs/CorePrinciples.md) |
-| What terms like "Module", "Feature", "Bay" mean here | [`docs/Terminology.md`](docs/Terminology.md) |
-| The build plan and current phase | [`docs/Roadmap.md`](docs/Roadmap.md) |
-| The technical architecture (engine, schema, renderers) | [`docs/Architecture.md`](docs/Architecture.md) |
-| How real construction knowledge gets encoded safely | [`docs/KnowledgeCapture.md`](docs/KnowledgeCapture.md) |
-| The formal data specifications | [`docs/Specifications/`](docs/Specifications/) |
-| Design decisions and their rationale | [`docs/RFC/`](docs/RFC/) |
+## Vision
 
-## Repository layout
+Artificial Intelligence has transformed the way people imagine furniture.
+
+Customers can now generate beautiful wardrobes, home offices, media walls and dressing rooms in seconds.
+
+Unfortunately those images rarely consider:
+
+- manufacturing methods
+- available materials
+- hardware limitations
+- structural integrity
+- machining constraints
+- installation requirements
+
+DTML exists to bridge this gap.
+
+Rather than asking customers to learn CAD software, DTML allows them to communicate in the language they already understand:
+
+**Images.**
+
+The Manufacturing Brain then translates those images into real, manufacturable furniture using engineering knowledge captured from years of practical experience.
+
+---
+
+## The Problem
+
+Today's workflow is fragmented.
 
 ```
-docs/            Philosophy, vision, specs, and RFCs — read these first
-schemas/         YAML schema definitions for every core data type
-library/         The actual populated component/rule/style library (data, not docs)
-examples/        Worked example projects (wardrobe, media wall, office, dressing room)
-extractor/       Tooling to mine real dimensions/hole patterns out of existing DXF drawings
-tests/           Verification: equation checks, DXF round-trip diffing
-tools/           Supporting scripts and utilities
+Customer Idea
+      │
+      ▼
+ AI Generated Image
+      │
+      ▼
+ Interior Designer
+      │
+      ▼
+ CAD Drawing
+      │
+      ▼
+ Manufacturing Drawing
+      │
+      ▼
+ CNC Programming
+      │
+      ▼
+ Production
 ```
 
-## Status
+Every stage recreates information that already exists.
 
-Early-stage. The manufacturing brain (schemas + library encoding) is the
-current focus, ahead of any customer-facing interface. See
-[`CHANGELOG.md`](CHANGELOG.md) and [`docs/Roadmap.md`](docs/Roadmap.md).
+Each translation introduces time, cost and the possibility of human error.
 
-## License
+---
 
-Proprietary — see [`LICENSE`](LICENSE). This is not an open-source project.
+## Our Vision
+
+DTML creates a single source of truth.
+
+```
+Customer Inspiration
+        │
+        ▼
+   Manufacturing Brain
+        │
+ ┌──────┼─────────────┐
+ │      │             │
+ ▼      ▼             ▼
+Render  Quote      Production
+                   Drawings
+                        │
+                        ▼
+                     CNC Output
+```
+
+The customer speaks in inspiration.
+
+The factory speaks in manufacturing.
+
+DTML translates between them.
+
+---
+
+## What is DTML?
+
+DTML is not CAD.
+
+DTML is not CAM.
+
+DTML is not a rendering engine.
+
+DTML is a manufacturing language.
+
+It describes:
+
+- engineering intent
+- furniture structure
+- manufacturing knowledge
+- construction rules
+- hardware relationships
+- machining features
+
+Every output is generated from this knowledge.
+
+---
+
+## Design Philosophy
+
+The Manufacturing Brain is the only source of truth.
+
+Everything else is generated.
+
+- Drawings
+- Renders
+- Quotations
+- CNC Programs
+- Installation Instructions
+
+No output should ever become the master.
+
+---
+
+## Core Concepts
+
+DTML describes furniture using a hierarchy.
+
+```
+Intent
+
+↓
+
+Function
+
+↓
+
+Furniture
+
+↓
+
+Modules
+
+↓
+
+Parts
+
+↓
+
+Features
+
+↓
+
+Operations
+
+↓
+
+Machine Instructions
+```
+
+Each layer adds engineering knowledge without losing the customer's original design intent.
+
+---
+
+## Why DTML?
+
+Traditional CAD systems ask:
+
+> How should this furniture be drawn?
+
+DTML asks:
+
+> How should this furniture be manufactured?
+
+That distinction changes everything.
+
+---
+
+## Long-Term Goals
+
+The project aims to create a platform where customers can:
+
+- Upload photographs of their room
+- Upload AI-generated inspiration
+- Define dimensions and constraints
+- Receive an engineered proposal
+- Approve the design
+- Automatically generate manufacturing data
+
+without requiring the design to be recreated manually.
+
+---
+
+## Project Status
+
+Current Version
+
+```
+v0.1.0
+```
+
+Current Focus
+
+> Defining the DTML language and Manufacturing Brain.
+
+Software implementation will begin only after the language has been formally specified.
+
+---
+
+## Repository Structure
+
+```
+docs/
+    Vision
+    Philosophy
+    Architecture
+    Specifications
+
+library/
+    Features
+    Parts
+    Modules
+    Hardware
+    Rules
+    Styles
+
+schemas/
+    Formal DTML object definitions
+
+examples/
+    Example furniture projects
+
+extractor/
+    Legacy DXF knowledge capture
+
+```
+
+---
+
+## Guiding Principle
+
+> **The customer's vision is the source of truth for appearance.**
+>
+> **The Manufacturing Brain is the source of truth for construction.**
+
+DTML exists to connect those two worlds.
+
+---
+
+© CuttingEdgeBespoke.
