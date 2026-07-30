@@ -1,0 +1,50 @@
+# Module schema — draft v0.1
+# See docs/Specifications/ModuleSpecification.md for full rationale.
+$schema_version: "0.1"
+$doc: "docs/Specifications/ModuleSpecification.md"
+
+type: object
+required: [module_type, inputs, equations, parts, hardware]
+properties:
+  module_type:
+    type: string
+    description: >
+      e.g. shoe_rake_bay, drawer_bank, hanging_bay, open_shelf_bay.
+      See ModuleSpecification.md for the initial Phase 2 target set.
+  inputs:
+    type: array
+    items: {type: string}
+    description: "e.g. [bay_width, bay_height, bay_depth, material_thickness]"
+  equations:
+    type: object
+    description: >
+      Named expressions, each either an inline formula string or a
+      reference to an entry in library/rules/. See RuleSpecification.md.
+    additionalProperties: {type: [string, number]}
+  parts:
+    type: array
+    items:
+      type: object
+      required: [part_ref, quantity_expr]
+      properties:
+        part_ref: {type: string, description: "References library/parts/"}
+        quantity_expr: {type: string, description: "e.g. shelf_count"}
+  hardware:
+    type: array
+    items:
+      type: object
+      required: [hardware_ref, positions_expr]
+      properties:
+        hardware_ref: {type: string, description: "References library/hardware/"}
+        positions_expr: {type: string}
+  style_slots:
+    type: array
+    items: {type: string}
+    description: "e.g. [door_front, handle, finish] — see StyleSpecification.md"
+  confidence_classifier_hints:
+    type: array
+    items: {type: string}
+    description: >
+      Optional: visual traits that distinguish this Module from siblings
+      during AI-vision classification (Phase 3, see Roadmap.md). Not yet
+      formalised — placeholder for future classifier-training spec.

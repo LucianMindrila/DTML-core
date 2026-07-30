@@ -1,0 +1,45 @@
+# Feature schema — draft v0.1
+# See docs/Specifications/FeatureSpecification.md for full rationale.
+$schema_version: "0.1"
+$doc: "docs/Specifications/FeatureSpecification.md"
+
+type: object
+required: [id, type, position, dimensions, clearance_required]
+properties:
+  id:
+    type: string
+    description: Unique identifier within the project.
+  type:
+    type: string
+    enum: [window, door, socket, radiator, sloped_ceiling, pipe_boxing, other]
+  position:
+    type: object
+    required: [x, y, z]
+    properties:
+      x: {type: number, unit: mm}
+      y: {type: number, unit: mm}
+      z: {type: number, unit: mm}
+  dimensions:
+    type: object
+    required: [width, height, depth]
+    properties:
+      width:  {type: number, unit: mm}
+      height: {type: number, unit: mm}
+      depth:  {type: number, unit: mm, description: "0 for flush features like sockets"}
+  clearance_required:
+    type: number
+    unit: mm
+  confidence:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: >
+      Required when derived from a scan/photo rather than manual entry.
+      See docs/CorePrinciples.md #3.
+  notes:
+    type: string
+    description: "Human-readable only — never authoritative."
+
+# Open questions (see FeatureSpecification.md):
+#  - sloped_ceiling parametrisation (height varying by x/y position)
+#  - radiator/pipe_boxing -> Part cut-out interaction

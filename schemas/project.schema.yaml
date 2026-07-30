@@ -1,0 +1,30 @@
+# Project schema — draft v0.1 (STUB — not yet in active use)
+# Top-level container tying a customer's Room, uploaded vision image,
+# resolved Furniture, and approval state together. See
+# docs/Specifications/DTML-Spec-v0.1.md "Resolved design object".
+$schema_version: "0.1"
+$status: draft-stub
+
+type: object
+required: [id, room, vision_image_ref, furniture, status]
+properties:
+  id: {type: string}
+  customer_ref: {type: string, description: "Internal customer/order reference"}
+  room: {"$ref": "room.schema.yaml"}
+  vision_image_ref:
+    type: string
+    description: "Reference to the uploaded AI-generated inspiration image"
+  furniture: {"$ref": "furniture.schema.yaml"}
+  status:
+    type: string
+    enum: [draft, pending_approval, approved, in_production, completed]
+  approval:
+    type: object
+    properties:
+      approved_at: {type: string, format: date-time}
+      deposit_reference: {type: string, description: "See docs/Vision.md — refundable design deposit"}
+
+# NOTE: dimensioned manufacturing output (cut lists, hardware BOM with
+# quantities, nested sheets) is deliberately NOT part of this schema —
+# see docs/Architecture.md for why that lives only in the manufacturing
+# renderer's internal output, never in a customer/project-facing object.

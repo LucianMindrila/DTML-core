@@ -1,0 +1,25 @@
+# Material schema — draft v0.1
+$schema_version: "0.1"
+
+type: object
+required: [id, name, category, standard_thicknesses]
+properties:
+  id: {type: string}
+  name: {type: string, description: "e.g. Walnut, Navarra MFC"}
+  category:
+    type: string
+    enum: [mfc, mdf, veneer, solid_wood, hpl, other]
+  standard_thicknesses:
+    type: array
+    items: {type: number, unit: mm}
+  standard_sheet_size:
+    type: object
+    properties:
+      length: {type: number, unit: mm, description: "e.g. 2800 for MFC, 2440 for MDF per existing conventions"}
+      width:  {type: number, unit: mm}
+  edge_band_compatible: {type: boolean}
+  finish_options:
+    type: array
+    items: {type: string}
+    description: "Cross-reference against library/styles/"
+  cost_per_sheet: {type: number, description: "Optional, for costing tools"}

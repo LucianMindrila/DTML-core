@@ -1,0 +1,56 @@
+# Part schema — draft v0.1
+# See docs/Specifications/PartSpecification.md for full rationale.
+$schema_version: "0.1"
+$doc: "docs/Specifications/PartSpecification.md"
+
+type: object
+required: [id, name, material, thickness, dimensions, source_confidence]
+properties:
+  id: {type: string}
+  name: {type: string}
+  material:
+    type: string
+    description: "References an entry in library/materials/"
+  thickness: {type: number, unit: mm}
+  dimensions:
+    type: object
+    required: [width, height]
+    properties:
+      width:  {type: [number, string], description: "number literal or a Rule reference"}
+      height: {type: [number, string], description: "number literal or a Rule reference"}
+  edge_banding:
+    type: array
+    items:
+      type: object
+      required: [edge, applied]
+      properties:
+        edge: {type: string, enum: [top, bottom, left, right]}
+        applied: {type: boolean}
+        material: {type: string, description: "optional override"}
+  holes:
+    type: array
+    items:
+      type: object
+      required: [type, diameter, position]
+      properties:
+        type:
+          type: string
+          description: "References an entry in library/hardware/"
+        diameter: {type: number, unit: mm}
+        position:
+          type: object
+          required: [x, y]
+          properties:
+            x: {type: number, unit: mm, description: "relative to part origin (bottom-left)"}
+            y: {type: number, unit: mm}
+        depth: {type: number, unit: mm, description: "blind vs through"}
+  grooves:
+    type: array
+    description: "Structure TBD — see PartSpecification.md open questions"
+    items: {}
+  source_confidence:
+    type: string
+    enum: [confirmed, extracted_unconfirmed]
+    description: >
+      MANDATORY. See docs/KnowledgeCapture.md. Nothing marked
+      extracted_unconfirmed may be referenced by a production Module.

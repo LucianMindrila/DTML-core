@@ -1,0 +1,39 @@
+# Hardware schema — draft v0.1
+# Standard fittings referenced by Parts (holes) and Modules (positions
+# expressions). See docs/CorePrinciples.md #2 (standardise one variable
+# per category) and docs/KnowledgeCapture.md (confirmation requirement).
+$schema_version: "0.1"
+
+type: object
+required: [id, category, source_confidence]
+properties:
+  id: {type: string, description: "e.g. kd_cam_dowel_std, shelf_pin_5mm, hinge_35mm_cup"}
+  category:
+    type: string
+    enum: [hinge, shelf_pin, kd_fitting, runner, lighting, handle, other]
+  fixed_variable:
+    type: string
+    description: >
+      Per CorePrinciples #2 — the ONE variable this hardware standardises
+      on (e.g. "cup_diameter_and_opening_angle" for hinges,
+      "profile_voltage_driver" for lighting).
+  variable_dimensions:
+    type: array
+    items: {type: string}
+    description: "What's still allowed to flex, e.g. [overlay_type] for hinges"
+  hole_signature:
+    type: array
+    items: {type: number, unit: mm}
+    description: >
+      Diameters of the hole cluster this hardware requires, e.g.
+      [8.0, 8.0, 15.0] for a standard KD cam+dowel fitting. Cross-
+      reference against extractor/ findings — see extractor/README.md.
+  source_confidence:
+    type: string
+    enum: [confirmed, pattern_matched_unconfirmed]
+    description: >
+      MANDATORY. A diameter pattern matching a known industry standard
+      is a hypothesis, not confirmation — see docs/KnowledgeCapture.md
+      and RFC-0003. Must be 'confirmed' before referenced by a production
+      Part or Module.
+  notes: {type: string}

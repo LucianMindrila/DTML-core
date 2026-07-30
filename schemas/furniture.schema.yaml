@@ -1,0 +1,42 @@
+# Furniture schema — draft v0.1 (STUB — not yet in active use)
+# A Furniture entry composes one or more resolved Modules into a single
+# named piece (e.g. "fitted wardrobe run", "media wall"). Formalise once
+# multi-Module composition rules are settled — see
+# docs/Specifications/ModuleSpecification.md open questions and
+# docs/RFC/RFC-0002-ManufacturingBrain.md open questions.
+$schema_version: "0.1"
+$status: draft-stub
+
+type: object
+required: [id, name, envelope, modules]
+properties:
+  id: {type: string}
+  name: {type: string, description: "e.g. 'Fitted wardrobe run - Bedroom 2'"}
+  envelope:
+    type: object
+    required: [width, height, depth]
+    properties:
+      width:  {type: number, unit: mm}
+      height: {type: number, unit: mm}
+      depth:  {type: number, unit: mm}
+  modules:
+    type: array
+    items:
+      type: object
+      required: [module_type, position, confidence]
+      properties:
+        module_type: {type: string, description: "References library/modules/"}
+        position: {type: object, description: "Placement within the envelope"}
+        confidence:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Classifier confidence for this Module assignment"
+        substitutions:
+          type: array
+          items: {type: string}
+          description: "Plain-language delta-view notes — see docs/Vision.md"
+  style: {type: string, description: "References library/styles/"}
+
+# OPEN: shared-panel handling between adjoining modules within one
+# Furniture entry — see RFC-0002 open questions.

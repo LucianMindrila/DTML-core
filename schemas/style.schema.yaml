@@ -1,0 +1,32 @@
+# Style schema — draft v0.1
+# See docs/Specifications/StyleSpecification.md for full rationale.
+$schema_version: "0.1"
+$doc: "docs/Specifications/StyleSpecification.md"
+
+type: object
+required: [id, name, applies_to_slots]
+properties:
+  id: {type: string}
+  name: {type: string, description: "e.g. 'Navarra / Walnut'"}
+  door_style:
+    type: string
+    description: "References library/styles/ door options"
+  material:
+    type: string
+    description: "References library/materials/"
+  finish:
+    type: string
+    description: "e.g. 'chrome illuminated' — from order_form conventions"
+  handle:
+    type: string
+  applies_to_slots:
+    type: array
+    items: {type: string}
+    description: "Which Module style_slots this fills — see module.schema.yaml"
+  source_confidence:
+    type: string
+    enum: [confirmed, extracted_unconfirmed]
+    description: >
+      Style option text was not machine-extractable from the existing
+      order_form (no surviving text layer) — see docs/KnowledgeCapture.md.
+      Must be confirmed against the real form, not assumed from layout.

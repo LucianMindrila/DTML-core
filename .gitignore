@@ -1,0 +1,37 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node (future front-end work)
+node_modules/
+dist/
+build/
+.env
+.env.local
+
+# CAD working files — real drawings live outside this repo or under
+# extractor/samples deliberately; don't let stray local exports leak in
+*.dwg
+*.bak
+*.dxf.bak
+
+# Extractor scratch output (regenerated, not source of truth)
+extractor/extracted/*
+!extractor/extracted/.gitkeep
+
+# Logs
+*.log

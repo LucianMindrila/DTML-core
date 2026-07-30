@@ -1,0 +1,29 @@
+# Room schema — draft v0.1 (STUB — not yet in active use)
+# Represents the customer's existing space: dimensions plus every
+# Feature (constraint) captured within it. See
+# docs/Specifications/FeatureSpecification.md.
+$schema_version: "0.1"
+$status: draft-stub
+
+type: object
+required: [id, dimensions, features]
+properties:
+  id: {type: string}
+  dimensions:
+    type: object
+    required: [width, height, depth]
+    properties:
+      width:  {type: number, unit: mm}
+      height: {type: number, unit: mm}
+      depth:  {type: number, unit: mm}
+    description: >
+      Overall room envelope. Note: for sloped ceilings, height may need
+      to be a function of position rather than a single figure — see
+      FeatureSpecification.md open questions before finalising this.
+  features:
+    type: array
+    items: {"$ref": "feature.schema.yaml"}
+  capture_method:
+    type: string
+    enum: [manual_entry, photo_scan, lidar_scan]
+    description: "How this Room's data was captured — affects default confidence handling"
