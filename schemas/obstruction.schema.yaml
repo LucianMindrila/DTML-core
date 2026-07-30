@@ -1,7 +1,7 @@
-# Feature schema — draft v0.1
-# See docs/Specifications/FeatureSpecification.md for full rationale.
+# Obstruction schema — draft v0.1
+# See docs/Specifications/ObstructionSpecification.md for full rationale.
 $schema_version: "0.1"
-$doc: "docs/Specifications/FeatureSpecification.md"
+$doc: "docs/Specifications/ObstructionSpecification.md"
 
 type: object
 required: [id, type, position, dimensions, clearance_required]
@@ -25,7 +25,7 @@ properties:
     properties:
       width:  {type: number, unit: mm}
       height: {type: number, unit: mm}
-      depth:  {type: number, unit: mm, description: "0 for flush features like sockets"}
+      depth:  {type: number, unit: mm, description: "0 for flush obstructions like sockets"}
   clearance_required:
     type: number
     unit: mm
@@ -40,6 +40,6 @@ properties:
     type: string
     description: "Human-readable only — never authoritative."
 
-# Open questions (see FeatureSpecification.md):
+# Open questions (see ObstructionSpecification.md):
 #  - sloped_ceiling parametrisation (height varying by x/y position)
 #  - radiator/pipe_boxing -> Part cut-out interaction

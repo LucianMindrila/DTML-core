@@ -1,64 +1,94 @@
-# Vision
+# DTML Vision
 
-## The end product
+> **To establish a universal language for describing manufacturable bespoke furniture.**
 
-A website where a customer can, in an intuitive, mobile-first flow:
+---
 
-1. **Upload photos/scan of their existing space** — capturing constraints:
-   windows, doors, sloped ceilings, sockets, radiators, and any other
-   physical obstruction relevant to the build.
-2. **Specify the target envelope** — width × height × depth of the
-   available space for the piece.
-3. **Upload an AI-generated (or any inspiration) image** of their desired
-   furniture.
+## Our Vision
 
-DTML then:
+The future of bespoke furniture should begin with imagination, not software.
 
-4. Classifies the vision image into a set of known Modules (bay types),
-   each with a confidence score.
-5. Resolves every Module's equations against the real envelope and
-   constraints to produce a standardised interpretation.
-6. Presents an **approval view**: the customer's original image side by
-   side with the standardised render, with any substitutions/adaptations
-   called out in plain language, and confidence badges per bay.
-7. On approval (backed by a refundable design deposit — see
-   `Philosophy.md` and the IP notes below), generates the real
-   manufacturing package internally: dimensioned drawings, cut lists,
-   hardware BOMs, and nested sheet layouts ready for CNC.
+Customers should be able to describe what they want using the tools that feel most natural to them: photographs, sketches, AI-generated concepts, floor plans, room scans or simple conversation.
 
-## What the customer never sees
+Manufacturers should receive complete, consistent and manufacturable information without recreating the design manually.
 
-Dimensioned production drawings, cut lists with real quantities, hardware
-part numbers, or nested sheet layouts are never exposed through the
-customer-facing product, at any tier. This is both a commercial boundary
-(the design is the sales tool; the manufacturing package is what's sold
-as part of the order) and, per `Architecture.md`, a structural one — the
-manufacturing renderer is architecturally separate from anything the
-browser can call.
+DTML exists to make that possible.
 
-## What "done" looks like, directionally
+---
 
-- A manufacturer (starting with Cutting Edge Bespoke) can take a
-  customer's two photos and constraints, and within minutes produce an
-  approval-ready standardised design with an honest confidence/delta view
-  — without a human designer manually re-drawing the vision from scratch.
-- The manufacturing brain (library + rules) is populated deeply enough
-  that most common wardrobe/media-wall/office/dressing-room requests
-  resolve with high classifier confidence.
-- The system's dimensioned output is trustworthy enough to nest and cut
-  directly, with no manual re-checking of every job.
+## The Problem We Are Solving
 
-## What DTML is deliberately not trying to be
+Today, every bespoke furniture project is translated multiple times.
 
-- Not a general-purpose AI image generator or interior design tool — the
-  vision image is an input, not something DTML produces.
-- Not a room-scanning/LiDAR product — that's a solved, licensable problem
-  (Matterport, Cyncly Scan, etc.), not a differentiator worth building
-  in-house at this stage.
-- Not a general CAD/CAM/nesting suite — the industrial pipeline
-  (imos, Cyncly, PolyBoard, Mozaik) is mature and not worth
-  re-inventing. DTML's value sits specifically in the reconciliation
-  layer between an uncontrolled AI image and that pipeline's inputs.
+A customer's idea becomes a concept.
 
-See `Roadmap.md` for how this gets built in phases, starting with the
-manufacturing brain rather than the customer-facing interface.
+The concept becomes a design.
+
+The design becomes engineering drawings.
+
+The drawings become manufacturing data.
+
+Each translation introduces delay, cost and the possibility of error.
+
+DTML seeks to eliminate unnecessary translation by creating a single representation of manufacturing intent.
+
+---
+
+## A Shared Manufacturing Language
+
+DTML is designed to become a common language between:
+
+- Customers
+- Designers
+- Engineers
+- Manufacturers
+- Software systems
+- CNC machinery
+
+Every participant views the same project through a different representation, while the underlying engineering knowledge remains consistent.
+
+---
+
+## Knowledge as Infrastructure
+
+Manufacturing knowledge should not disappear when experienced people retire.
+
+It should not remain hidden inside thousands of CAD files.
+
+It should not exist only in company procedures.
+
+DTML captures engineering knowledge as structured information that can be reused, validated and continuously improved.
+
+---
+
+## Long-Term Goals
+
+The DTML ecosystem should enable:
+
+- Design directly from customer intent.
+- Automatic generation of manufacturable solutions.
+- Vendor-independent manufacturing knowledge.
+- Reusable engineering libraries.
+- Explainable engineering decisions.
+- Consistent production across multiple factories.
+- Continuous improvement through accumulated manufacturing experience.
+
+---
+
+## Beyond Furniture
+
+DTML begins with bespoke furniture because the domain is well understood.
+
+Its principles may ultimately extend to other forms of configurable manufacturing where customer intent must be translated into engineered products.
+
+---
+
+## Success
+
+DTML will be successful when engineering knowledge becomes more valuable than engineering drawings.
+
+When a manufacturer can describe *how* something should be built rather than repeatedly drawing *what* should be built.
+
+When manufacturing becomes a process of applying knowledge rather than recreating it.
+
+That is the future DTML aims to build.

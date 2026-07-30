@@ -15,7 +15,7 @@ an RFC (see `../RFC/`).
 
 | Type | Spec | Role |
 |---|---|---|
-| **Feature** | `FeatureSpecification.md` | A physical constraint in the customer's existing space (window, door, socket, radiator, sloped ceiling). Input only — never generated. |
+| **Obstruction** | `ObstructionSpecification.md` | A physical constraint in the customer's existing space (window, door, socket, radiator, sloped ceiling). Input only — never generated. |
 | **Part** | `PartSpecification.md` | An atomic manufacturable component — panel, rail, etc. — with material, thickness, edge-banding, and hole pattern. |
 | **Module** | `ModuleSpecification.md` | A standard assembly ("bay type") built from Parts, taking dimensional inputs and producing a concrete cut list + hardware BOM via Rules. |
 | **Rule** | `RuleSpecification.md` | An equation/relationship between dimensions, hardware positions, and material thickness. Rules are what make a Module parametric. |
@@ -24,7 +24,7 @@ an RFC (see `../RFC/`).
 ## Resolution flow
 
 ```
-Input:  Envelope (W×H×D) + Features (obstructions) + Vision image
+Input:  Envelope (W×H×D) + Obstructions + Vision image
         │
         ▼
 Classification: vision image regions → Module type + confidence score
@@ -46,7 +46,7 @@ Output: single resolved design object (see below) — consumed by both the
 ```yaml
 project_id: string
 envelope: {width, height, depth}
-features: [Feature, ...]
+obstructions: [Obstruction, ...]
 modules:
   - module_type: string
     confidence: float           # 0.0-1.0, from classification

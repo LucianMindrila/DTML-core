@@ -1,65 +1,169 @@
-# Terminology
+# DTML Terminology
 
-A glossary of terms as used specifically within DTML. Where a term also
-has a general woodworking/CAD meaning, the DTML usage is noted.
+## Customer
 
-**Feature**
-A physical constraint in the customer's existing space that the design
-must accommodate or avoid: a window, door, socket, radiator, sloped
-ceiling, pipe boxing, etc. Represented as a structured obstruction object
-(`{type, position, dimensions, clearance_required}`), never as free text.
-See `Specifications/FeatureSpecification.md`.
+The individual or organisation requesting a manufactured product.
 
-**Part**
-An atomic manufacturable component: a single panel, rail, or similar —
-with material, thickness, edge-banding spec, and hole/drilling pattern.
-The lowest level of the library; Parts are combined into Modules.
-See `Specifications/PartSpecification.md`.
+---
 
-**Module** (a.k.a. "Bay type")
-A standard assembly built from Parts: a hanging bay, a drawer bank, a
-shoe-rake bay, an open shelving bay, etc. Takes bay width/height/depth and
-material thickness as inputs, and via Rules produces a concrete cut list
-and hardware BOM. This is the unit an AI-vision image gets classified
-into. See `Specifications/ModuleSpecification.md`.
+## Space
 
-**Rule**
-An equation or relationship between dimensions, hardware positions, and
-material thickness — e.g. "internal width = bay width − (2 × side panel
-thickness)". Rules are what make a Module parametric rather than a fixed
-preset. See `Specifications/RuleSpecification.md`.
+The physical environment into which furniture will be installed.
 
-**Style**
-The customer-facing finish/aesthetic layer: door style (e.g. "Navarra"),
-material/colour (e.g. "Walnut"), handle type, that get applied on top of
-a resolved Module without changing its underlying construction logic.
-See `Specifications/StyleSpecification.md`.
+Includes dimensions, obstacles, services and installation constraints.
 
-**Envelope**
-The overall available space for a piece of furniture: width × height ×
-depth, as constrained by the room and any Features within it.
+---
 
-**KD fitting**
-"Knock-down" fitting — a mechanical fixing (e.g. cam + dowel, of the type
-identified in the `parts.dxf` extraction as an (8mm, 8mm, 15mm) hole
-signature) used to join panels without permanent adhesive, allowing
-flat-pack assembly/disassembly.
+## Obstruction
 
-**Confidence score**
-A per-Module classification score produced when matching a region of an
-AI-generated vision image to a known Module. Below a defined threshold,
-the match is flagged for human/customer confirmation rather than
-committed automatically. See `CorePrinciples.md` §3.
+A physical constraint in the customer's existing space that a design must accommodate or avoid: a window, door, socket, radiator, sloped ceiling, pipe boxing, etc.
 
-**Delta view / Approval view**
-The customer-facing side-by-side comparison of their original AI vision
-image and DTML's standardised interpretation, with substitutions
-explicitly called out. This is the customer approval gate before any
-manufacturing output is generated. See `Vision.md`.
+Represented as a structured object (`{type, position, dimensions, clearance_required}`), never as free text.
 
-**Manufacturing brain**
-The combination of the schemas, the populated library, and the rule/
-equation engine — everything needed to resolve a classified design into
-a concrete, dimensioned, buildable output. See `RFC/RFC-0002-ManufacturingBrain.md`.
+See `Specifications/ObstructionSpecification.md`.
 
-**Bay** — see **Module**.
+---
+
+## Requirement
+
+A measurable need that must be satisfied.
+
+Examples include dimensions, storage capacity, accessibility or budget.
+
+---
+
+## Constraint
+
+A limitation that restricts possible solutions.
+
+Examples include ceiling height, material availability, transport limitations or machine capabilities.
+
+---
+
+## Intent
+
+The desired outcome expressed by the customer.
+
+Intent describes *what the customer wishes to achieve*, not *how it should be engineered*.
+
+---
+
+## Function
+
+The purpose performed by a furniture element.
+
+Examples include:
+
+- Storage
+- Display
+- Seating
+- Support
+- Hanging
+- Lighting
+
+---
+
+## Furniture
+
+A complete manufacturable product composed of one or more modules.
+
+---
+
+## Module
+
+An independently manufacturable section of furniture.
+
+Modules may be combined to form larger assemblies.
+
+---
+
+## Part
+
+A single manufactured component.
+
+A Part may contain multiple Features.
+
+---
+
+## Feature
+
+An individual manufacturing element applied to a Part.
+
+Examples include:
+
+- Hole
+- Slot
+- Pocket
+- Groove
+- Chamfer
+- Edge Band
+
+---
+
+## Operation
+
+A manufacturing process performed to create one or more Features.
+
+Examples include:
+
+- Drilling
+- Routing
+- Cutting
+- Edgebanding
+- Assembly
+
+---
+
+## Rule
+
+An engineering statement describing how decisions should be made.
+
+Rules may depend on constraints, requirements or other rules.
+
+---
+
+## Library
+
+A reusable collection of engineering knowledge.
+
+Libraries may contain Features, Parts, Modules, Materials, Hardware or Rules.
+
+---
+
+## Manufacturing Brain
+
+The complete collection of structured engineering knowledge used by DTML.
+
+The Manufacturing Brain is the authoritative source from which all outputs are generated.
+
+---
+
+## Representation
+
+Any generated view of the Manufacturing Brain.
+
+Examples include:
+
+- Drawings
+- Renders
+- Quotations
+- CNC Programs
+- Installation Instructions
+
+Representations are outputs, not authoritative data.
+
+---
+
+## Confidence
+
+A quantified measure of certainty associated with an engineering decision.
+
+Confidence determines whether a decision may be automated or requires human review.
+
+---
+
+## Knowledge Capture
+
+The process of converting manufacturing expertise into structured DTML objects.
+
+Knowledge may originate from experienced engineers, legacy documentation or validated manufacturing processes.

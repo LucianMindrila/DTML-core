@@ -1,6 +1,6 @@
-# Feature Specification (Draft v0.1)
+# Obstruction Specification (Draft v0.1)
 
-A **Feature** is a structured representation of a physical constraint in
+An **Obstruction** is a structured representation of a physical constraint in
 the customer's existing space — never free text, never inferred silently
 from a photo without being resolved into this structure first.
 
@@ -15,7 +15,7 @@ moves one step down the pipeline instead of being solved. See
 ## Shape
 
 ```yaml
-feature:
+obstruction:
   id: string                     # unique within the project
   type: enum                     # window | door | socket | radiator |
                                   # sloped_ceiling | pipe_boxing | other
@@ -26,8 +26,8 @@ feature:
   dimensions:
     width: float                 # mm
     height: float
-    depth: float                 # 0 for flush features like sockets
-  clearance_required: float      # mm of mandatory clearance around the feature
+    depth: float                 # 0 for flush obstructions like sockets
+  clearance_required: float      # mm of mandatory clearance around the obstruction
   notes: string                  # optional, human-readable, non-authoritative
 ```
 
@@ -48,7 +48,7 @@ feature:
 
 ## Confidence and confirmation
 
-Unlike Module classification, Features derived from a scan/photo (rather
+Unlike Module classification, Obstructions derived from a scan/photo (rather
 than manually entered) should also carry a confidence score and be
 subject to the same "flag below threshold" principle in
 `../CorePrinciples.md` §3 — a missed socket or misjudged sloped-ceiling
@@ -58,8 +58,8 @@ avoid.
 ## Open questions
 
 - Exact schema for sloped ceilings and other non-rectilinear constraints.
-- Whether Features should be versioned per-project or reusable across a
+- Whether Obstructions should be versioned per-project or reusable across a
   customer's multiple projects (e.g. a repeat customer's room shape).
 
-See `../../schemas/feature.schema.yaml` for the machine-readable schema
+See `../../schemas/obstruction.schema.yaml` for the machine-readable schema
 once finalised (currently a draft stub).

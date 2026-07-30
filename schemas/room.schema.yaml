@@ -1,12 +1,12 @@
 # Room schema — draft v0.1 (STUB — not yet in active use)
 # Represents the customer's existing space: dimensions plus every
-# Feature (constraint) captured within it. See
-# docs/Specifications/FeatureSpecification.md.
+# Obstruction (constraint) captured within it. See
+# docs/Specifications/ObstructionSpecification.md.
 $schema_version: "0.1"
 $status: draft-stub
 
 type: object
-required: [id, dimensions, features]
+required: [id, dimensions, obstructions]
 properties:
   id: {type: string}
   dimensions:
@@ -19,10 +19,10 @@ properties:
     description: >
       Overall room envelope. Note: for sloped ceilings, height may need
       to be a function of position rather than a single figure — see
-      FeatureSpecification.md open questions before finalising this.
-  features:
+      ObstructionSpecification.md open questions before finalising this.
+  obstructions:
     type: array
-    items: {"$ref": "feature.schema.yaml"}
+    items: {"$ref": "obstruction.schema.yaml"}
   capture_method:
     type: string
     enum: [manual_entry, photo_scan, lidar_scan]
