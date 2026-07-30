@@ -1,0 +1,25 @@
+# Operation schema — draft v0.1
+# A manufacturing process performed to create one or more Features. Must
+# remain machine-independent — a machine-specific cycle belongs in a
+# capability profile / post-processor, not here. See
+# docs/Specifications/SchemaConventions.md and docs/Architecture.md.
+$id: operation.schema.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+$ref: "#/$defs/operation"
+$defs:
+  operation:
+    allOf:
+      - $ref: "common.schema.yaml#/$defs/knowledge_object"
+      - type: object
+        required: [operation_type]
+        properties:
+          operation_type:
+            type: string
+            enum: [drill, route, profile_cut, pocket, groove, edge_band, manual_assembly]
+          parameters:
+            type: object
+            description: >
+              Operation-level parameters (e.g. tool diameter, feed rate).
+              Left open-ended in v0.1 — per-operation-type parameter
+              schemas are future work.
+    unevaluatedProperties: false

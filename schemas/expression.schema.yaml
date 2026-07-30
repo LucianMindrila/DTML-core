@@ -1,0 +1,45 @@
+# Expression schema — draft v0.1
+# Distinguishes a fixed value from a parametric formula from a reference to
+# a named Rule. Does not define the formula grammar itself — see
+# docs/Specifications/RuleSpecification.md open questions. See
+# docs/Specifications/SchemaConventions.md for the full rationale.
+$id: expression.schema.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+$ref: "#/$defs/expression"
+$defs:
+  unit:
+    type: string
+    enum: [mm, degrees, count]
+
+  literal_value:
+    type: object
+    required: [value, unit]
+    properties:
+      value: {type: number}
+      unit: {$ref: "#/$defs/unit"}
+    additionalProperties: false
+
+  formula_value:
+    type: object
+    required: [formula, unit]
+    properties:
+      formula:
+        type: string
+        description: >
+          A parametric expression string, e.g.
+          "module.width - (2 * material.thickness)". Grammar not yet
+          fixed — see RuleSpecification.md open questions.
+      unit: {$ref: "#/$defs/unit"}
+    additionalProperties: false
+
+  expression:
+    type: object
+    description: >
+      Exactly one of literal, formula, or rule_reference must be present.
+    minProperties: 1
+    maxProperties: 1
+    properties:
+      literal: {$ref: "#/$defs/literal_value"}
+      formula: {$ref: "#/$defs/formula_value"}
+      rule_reference: {$ref: "reference.schema.yaml#/$defs/reference"}
+    additionalProperties: false

@@ -14,5 +14,19 @@ methodology:
    one-off deviation. Never silently resolved by adjusting the rule to
    fit the one example.
 
-Empty until Phase 2 (`../docs/Roadmap.md`) produces the first confirmed
-Rules/Modules to test against.
+Both categories are empty until Phase 2 (`../docs/Roadmap.md`) produces
+the first confirmed Rules/Modules to test against.
+
+## `fixtures/`
+
+Schema-layer conformance fixtures for `../tools/validate_schema.py` —
+these test the *schema shape*, not manufacturing correctness, so they
+exist now rather than waiting for Phase 2:
+
+- `fixtures/valid/` — instances expected to pass validation against their
+  declared `x-dtml-schema`.
+- `fixtures/invalid/` — deliberately broken instances, each documenting
+  in a comment which single constraint it violates and why, so a fixture
+  failing for the wrong reason is easy to spot.
+
+Run the validator against a fixture directly (see `../tools/README.md`).

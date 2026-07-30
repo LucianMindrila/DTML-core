@@ -1,0 +1,25 @@
+x-dtml-schema: ../schemas/operation.schema.yaml
+
+namespace: cuttingedgebespoke.operation
+id: vertical_drill
+name: "Vertical drill"
+description: >
+  A drilling operation performed perpendicular to the panel face.
+  Machine-independent — see docs/ReferenceImplementation.md for how a
+  specific CNC executes this via a capability profile.
+schema_version: "0.1"
+object_version: "1.0.0"
+status: active
+provenance:
+  source_type: narrated
+  source_reference: "Schema foundation work package, 2026-07-30"
+  captured_by: lucian
+  captured_at: "2026-07-30T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [operation, drilling]
+
+operation_type: drill
+parameters: {}

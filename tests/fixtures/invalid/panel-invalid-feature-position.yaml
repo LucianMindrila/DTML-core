@@ -1,0 +1,53 @@
+x-dtml-schema: ../../../schemas/part.schema.yaml
+
+# Deliberately invalid: the feature instance's position is missing the
+# required "y" coordinate. Proves the validator enforces the
+# feature_instance.position contract, not just top-level required fields.
+
+namespace: cuttingedgebespoke.part
+id: panel_invalid_feature_position
+name: "Invalid fixture — feature instance missing position.y"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "Schema foundation work package, 2026-07-30"
+  captured_by: lucian
+  captured_at: "2026-07-30T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+
+material:
+  ref: cuttingedgebespoke.material.birch_plywood
+  object_version: "1.0.0"
+
+thickness:
+  literal:
+    value: 18
+    unit: mm
+
+dimensions:
+  width:
+    literal:
+      value: 600
+      unit: mm
+  height:
+    literal:
+      value: 720
+      unit: mm
+
+reference_face: front
+
+feature_instances:
+  - feature:
+      ref: cuttingedgebespoke.feature.shelf_pin_array
+      object_version: "1.0.0"
+    position:
+      x:
+        literal:
+          value: 20
+          unit: mm
+    reference_face: front

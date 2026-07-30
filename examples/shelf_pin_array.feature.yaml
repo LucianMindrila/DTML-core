@@ -1,0 +1,49 @@
+x-dtml-schema: ../schemas/feature.schema.yaml
+
+namespace: cuttingedgebespoke.feature
+id: shelf_pin_array
+name: "Shelf-pin array"
+description: >
+  A vertical line of evenly-pitched shelf-support holes on the interior
+  face of a side panel.
+schema_version: "0.1"
+object_version: "1.0.0"
+status: active
+provenance:
+  source_type: narrated
+  source_reference: "Schema foundation work package, 2026-07-30"
+  captured_by: lucian
+  captured_at: "2026-07-30T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [feature, hole_array]
+
+feature_type: hole_array
+parameters:
+  hole_diameter:
+    literal:
+      value: 5
+      unit: mm
+  hole_depth:
+    literal:
+      value: 13
+      unit: mm
+  pitch:
+    literal:
+      value: 32
+      unit: mm
+  quantity:
+    literal:
+      value: 5
+      unit: count
+  start_position:
+    literal:
+      value: 100
+      unit: mm
+  reference_face: front
+
+operation:
+  ref: cuttingedgebespoke.operation.vertical_drill
+  object_version: "1.0.0"

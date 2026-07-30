@@ -1,56 +1,79 @@
-# Part schema — draft v0.1
-# See docs/Specifications/PartSpecification.md for full rationale.
-$schema_version: "0.1"
-$doc: "docs/Specifications/PartSpecification.md"
-
-type: object
-required: [id, name, material, thickness, dimensions, source_confidence]
-properties:
-  id: {type: string}
-  name: {type: string}
-  material:
-    type: string
-    description: "References an entry in library/materials/"
-  thickness: {type: number, unit: mm}
-  dimensions:
+# Part schema — draft v0.2
+# See docs/Specifications/PartSpecification.md for rationale (currently
+# describes the v0.1 shape — pending update to match this revision) and
+# docs/Specifications/SchemaConventions.md for the shared conventions
+# (origin, face/edge naming, expressions, references, provenance) this
+# schema relies on.
+#
+# v0.2 replaces the inline holes/grooves arrays with Feature instances:
+# a Part instantiates a reusable Feature definition (feature.schema.yaml)
+# rather than embedding hole/groove geometry directly.
+$id: part.schema.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+$ref: "#/$defs/part"
+$defs:
+  feature_instance:
     type: object
-    required: [width, height]
-    properties:
-      width:  {type: [number, string], description: "number literal or a Rule reference"}
-      height: {type: [number, string], description: "number literal or a Rule reference"}
-  edge_banding:
-    type: array
-    items:
-      type: object
-      required: [edge, applied]
-      properties:
-        edge: {type: string, enum: [top, bottom, left, right]}
-        applied: {type: boolean}
-        material: {type: string, description: "optional override"}
-  holes:
-    type: array
-    items:
-      type: object
-      required: [type, diameter, position]
-      properties:
-        type:
-          type: string
-          description: "References an entry in library/hardware/"
-        diameter: {type: number, unit: mm}
-        position:
-          type: object
-          required: [x, y]
-          properties:
-            x: {type: number, unit: mm, description: "relative to part origin (bottom-left)"}
-            y: {type: number, unit: mm}
-        depth: {type: number, unit: mm, description: "blind vs through"}
-  grooves:
-    type: array
-    description: "Structure TBD — see PartSpecification.md open questions"
-    items: {}
-  source_confidence:
-    type: string
-    enum: [confirmed, extracted_unconfirmed]
     description: >
-      MANDATORY. See docs/KnowledgeCapture.md. Nothing marked
-      extracted_unconfirmed may be referenced by a production Module.
+      A Part's instantiation of a reusable Feature definition, positioned
+      on this specific Part.
+    required: [feature, position, reference_face]
+    properties:
+      feature:
+        $ref: "reference.schema.yaml#/$defs/reference"
+      instance_parameters:
+        type: object
+        description: >
+          Overrides/instantiation values for the referenced Feature's
+          parameters (e.g. a concrete quantity or start_position for this
+          Part).
+        additionalProperties: true
+      position:
+        type: object
+        description: "Relative to the Part origin — see SchemaConventions.md."
+        required: [x, y]
+        properties:
+          x: {$ref: "expression.schema.yaml#/$defs/expression"}
+          y: {$ref: "expression.schema.yaml#/$defs/expression"}
+        unevaluatedProperties: false
+      reference_face:
+        type: string
+        enum: [front, back]
+    unevaluatedProperties: false
+
+  part:
+    allOf:
+      - $ref: "common.schema.yaml#/$defs/knowledge_object"
+      - type: object
+        required: [material, thickness, dimensions, reference_face, feature_instances]
+        properties:
+          material:
+            $ref: "reference.schema.yaml#/$defs/reference"
+          thickness:
+            $ref: "expression.schema.yaml#/$defs/expression"
+          dimensions:
+            type: object
+            required: [width, height]
+            properties:
+              width: {$ref: "expression.schema.yaml#/$defs/expression"}
+              height: {$ref: "expression.schema.yaml#/$defs/expression"}
+            unevaluatedProperties: false
+          reference_face:
+            type: string
+            enum: [front, back]
+            description: "Which face is being machined — see SchemaConventions.md."
+          edge_banding:
+            type: array
+            items:
+              type: object
+              required: [edge, applied]
+              properties:
+                edge: {type: string, enum: [top, bottom, left, right]}
+                applied: {type: boolean}
+                material:
+                  $ref: "reference.schema.yaml#/$defs/reference"
+              unevaluatedProperties: false
+          feature_instances:
+            type: array
+            items: {$ref: "#/$defs/feature_instance"}
+    unevaluatedProperties: false

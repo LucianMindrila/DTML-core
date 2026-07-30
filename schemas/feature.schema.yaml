@@ -1,0 +1,34 @@
+# Feature schema — draft v0.1
+# A manufacturing element applied to a Part (hole, slot, pocket, groove,
+# chamfer, edge band), independent of any specific Part instance. See
+# docs/Specifications/SchemaConventions.md and docs/Terminology.md.
+$id: feature.schema.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+$ref: "#/$defs/feature"
+$defs:
+  feature:
+    allOf:
+      - $ref: "common.schema.yaml#/$defs/knowledge_object"
+      - type: object
+        required: [feature_type, parameters, operation]
+        properties:
+          feature_type:
+            type: string
+            enum: [hole, hole_array, slot, pocket, groove, chamfer, edge_band]
+          parameters:
+            type: object
+            description: >
+              Feature-type-specific parameters (e.g. hole_diameter,
+              hole_depth, pitch, quantity, start_position, reference_face
+              for hole_array). Left open-ended in v0.1 — see
+              FeatureSpecification.md for per-type parameter conventions.
+            additionalProperties: true
+          operation:
+            allOf:
+              - $ref: "reference.schema.yaml#/$defs/reference"
+            description: >
+              DTML v0.1 feature definitions support one primary
+              manufacturing operation. Multi-operation features are
+              deferred until validated by a real manufacturing example —
+              see FeatureSpecification.md.
+    unevaluatedProperties: false

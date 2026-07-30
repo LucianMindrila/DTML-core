@@ -1,0 +1,37 @@
+# Provenance schema — draft v0.1
+# Encodes Explicit Knowledge Capture (docs/KnowledgeCapture.md, RFC-0003).
+# The single owner of confidence for a knowledge object — see
+# docs/Specifications/SchemaConventions.md.
+$id: provenance.schema.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+$ref: "#/$defs/provenance"
+$defs:
+  provenance:
+    type: object
+    required: [source_type, confidence, review_status]
+    properties:
+      source_type:
+        type: string
+        enum: [narrated, extracted, pattern_matched, derived]
+        description: "How the data was captured — see docs/KnowledgeCapture.md."
+      source_reference:
+        type: string
+        description: "e.g. a DXF filename, drawing number, or narration session reference."
+      captured_by: {type: string}
+      captured_at: {type: string, format: date-time}
+      confidence:
+        type: string
+        enum: [confirmed, unconfirmed]
+        description: >
+          The single confidence gate for this object. source_type explains
+          why something is unconfirmed; confidence is the binary decision
+          that governs whether it may be referenced by a production object
+          (enforced by the future Validation Engine, not this schema).
+      review_status:
+        type: string
+        enum: [pending, approved, rejected]
+      reviewed_by: {type: string}
+      evidence:
+        type: array
+        items: {type: string}
+    additionalProperties: false

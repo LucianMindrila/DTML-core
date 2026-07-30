@@ -1,0 +1,50 @@
+# Common object schema — draft v0.1
+# Fields shared by every DTML knowledge object. See
+# docs/Specifications/SchemaConventions.md for the full rationale.
+$id: common.schema.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+$ref: "#/$defs/knowledge_object"
+$defs:
+  knowledge_object:
+    type: object
+    description: >
+      Fields shared by every DTML knowledge object (Part, Feature,
+      Operation, Material, Hardware, Module, etc). Concrete schemas
+      compose this via allOf and close the object with
+      unevaluatedProperties: false — see SchemaConventions.md.
+    required:
+      - namespace
+      - id
+      - name
+      - schema_version
+      - object_version
+      - status
+      - provenance
+    properties:
+      namespace:
+        type: string
+        pattern: "^[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+        description: >
+          Owning domain and object category, dot-separated, e.g.
+          cuttingedgebespoke.feature. The canonical identifier is derived
+          as namespace + "." + id and must not be stored separately.
+      id:
+        type: string
+        pattern: "^[a-z0-9_]+$"
+        description: "Local identifier within the namespace."
+      name: {type: string}
+      description: {type: string}
+      schema_version:
+        type: string
+        description: "Which version of the schema structure this object conforms to."
+      object_version:
+        type: string
+        description: "Which revision of this knowledge object is being described."
+      status:
+        type: string
+        enum: [draft, active, deprecated, superseded]
+      provenance:
+        $ref: "provenance.schema.yaml#/$defs/provenance"
+      tags:
+        type: array
+        items: {type: string}

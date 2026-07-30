@@ -1,0 +1,27 @@
+# Reference schema — draft v0.1
+# One consistent way to point at another DTML knowledge object. See
+# docs/Specifications/SchemaConventions.md.
+$id: reference.schema.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+$ref: "#/$defs/reference"
+$defs:
+  reference:
+    type: object
+    description: >
+      A reference to a specific version of another knowledge object,
+      instead of a bare string. Required for reproducibility — see
+      docs/Architecture.md's determinism guarantee.
+    required: [ref, object_version]
+    properties:
+      ref:
+        type: string
+        pattern: "^[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+        description: >
+          The canonical dotted id of the referenced object, e.g.
+          cuttingedgebespoke.material.birch_plywood.
+      object_version:
+        type: string
+        description: >
+          The object_version of the referenced entry being pinned. Not
+          schema_version — see SchemaConventions.md for the distinction.
+    additionalProperties: false
