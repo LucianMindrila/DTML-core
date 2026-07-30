@@ -15,10 +15,13 @@ $defs:
     properties:
       ref:
         type: string
-        pattern: "^[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+        pattern: "^[a-z0-9_]+(\\.[a-z0-9_]+){2,}$"
         description: >
-          The canonical dotted id of the referenced object, e.g.
-          cuttingedgebespoke.material.birch_plywood.
+          The canonical dotted id of the referenced object: namespace
+          (2+ segments) + "." + id (1 segment), so at least 3 segments
+          overall, e.g. cuttingedgebespoke.material.birch_plywood. Kept
+          consistent with the namespace pattern in
+          common.schema.yaml#/$defs/knowledge_object.
       object_version:
         $ref: "common.schema.yaml#/$defs/semantic_version"
         description: >

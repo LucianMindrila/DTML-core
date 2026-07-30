@@ -25,7 +25,7 @@ $defs:
         type: object
         description: >
           Overrides/instantiation values for the referenced Feature's
-          parameters (e.g. a concrete quantity or start_position for this
+          parameters (e.g. a concrete quantity or start_offset for this
           Part).
         additionalProperties: true
       position:

@@ -19,9 +19,14 @@ $defs:
             type: object
             description: >
               Feature-type-specific parameters (e.g. hole_diameter,
-              hole_depth, pitch, quantity, start_position, reference_face
-              for hole_array). Left open-ended in v0.1 — see
-              FeatureSpecification.md for per-type parameter conventions.
+              hole_depth, pitch, quantity, start_offset, reference_face
+              for hole_array). This is also where resulting-geometry
+              properties like hole_form (blind | through | countersunk |
+              counterbored) and its countersink/counterbore geometry
+              belong — see OperationSpecification.md for why that's
+              Feature-owned rather than Operation-owned. Left open-ended
+              in v0.1 — see FeatureSpecification.md for per-type
+              parameter conventions.
             additionalProperties: true
           operation:
             allOf:

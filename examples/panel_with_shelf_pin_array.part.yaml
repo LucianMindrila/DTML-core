@@ -61,8 +61,11 @@ feature_instances:
       ref: cuttingedgebespoke.feature.shelf_pin_array
       object_version: "1.0.0"
     instance_parameters:
-      quantity: 5
-      start_position:
+      count:
+        literal:
+          value: 5
+          unit: count
+      start_offset:
         literal:
           value: 100
           unit: mm

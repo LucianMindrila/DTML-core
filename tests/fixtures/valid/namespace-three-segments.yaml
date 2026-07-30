@@ -1,0 +1,20 @@
+x-dtml-schema: ../../../schemas/common.schema.yaml
+
+# Namespace grammar fixture: deeper (three-segment) namespaces are valid
+# too — the pattern has no upper bound on segment count.
+
+namespace: manufacturer_a.hardware.hinge
+id: namespace_three_segments
+name: "Namespace grammar fixture — three segments"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "Namespace grammar tightening follow-up, 2026-07-30"
+  captured_by: lucian
+  captured_at: "2026-07-30T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []

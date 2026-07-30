@@ -1,0 +1,20 @@
+x-dtml-schema: ../../../schemas/common.schema.yaml
+
+# Deliberately invalid: an empty segment (double dot) is not a valid
+# namespace path element.
+
+namespace: cuttingedgebespoke..feature
+id: namespace_empty_segment
+name: "Invalid fixture — empty namespace segment"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "Namespace grammar tightening follow-up, 2026-07-30"
+  captured_by: lucian
+  captured_at: "2026-07-30T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []

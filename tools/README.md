@@ -15,7 +15,7 @@ it deliberately does not check.
 python tools/validate_schema.py --schemas
 
 # A YAML instance validates against the schema it declares via x-dtml-schema
-python tools/validate_schema.py tests/fixtures/valid/panel-with-shelf-pin-array.yaml
+python tools/validate_schema.py examples/panel_with_shelf_pin_array.part.yaml
 ```
 
 Requires `jsonschema>=4.18` and `PyYAML` — see `../requirements-dev.txt`.

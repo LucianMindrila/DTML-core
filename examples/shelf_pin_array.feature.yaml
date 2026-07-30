@@ -1,4 +1,4 @@
-x-dtml-schema: ../schemas/feature.schema.yaml
+x-dtml-schema: ../schemas/features/hole_array.schema.yaml
 
 namespace: cuttingedgebespoke.feature
 id: shelf_pin_array
@@ -22,11 +22,12 @@ tags: [feature, hole_array]
 
 feature_type: hole_array
 parameters:
-  hole_diameter:
+  diameter:
     literal:
       value: 5
       unit: mm
-  hole_depth:
+  hole_form: blind
+  depth:
     literal:
       value: 13
       unit: mm
@@ -34,15 +35,17 @@ parameters:
     literal:
       value: 32
       unit: mm
-  quantity:
+  count:
     literal:
       value: 5
       unit: count
-  start_position:
+  start_offset:
     literal:
       value: 100
       unit: mm
-  reference_face: front
+  direction:
+    axis: y
+    sense: positive
 
 operation:
   ref: cuttingedgebespoke.operation.vertical_drill

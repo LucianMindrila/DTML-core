@@ -6,6 +6,6 @@ thickness, edge-banding, and hole patterns.
 Schema: `../../schemas/part.schema.yaml`
 Spec: `../../docs/Specifications/PartSpecification.md`
 
-**Only `source_confidence: confirmed` Parts belong here.** Anything
+**Only `provenance.confidence: confirmed` Parts belong here.** Anything
 pending confirmation from the extractor stays out of this folder — see
 `../../extractor/extracted/` and `../../docs/KnowledgeCapture.md`.

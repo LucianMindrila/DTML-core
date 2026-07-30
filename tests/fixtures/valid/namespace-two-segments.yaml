@@ -1,0 +1,20 @@
+x-dtml-schema: ../../../schemas/common.schema.yaml
+
+# Namespace grammar fixture: two-segment namespace (owner.category) is
+# the minimum valid shape per SchemaConventions.md.
+
+namespace: cuttingedgebespoke.feature
+id: namespace_two_segments
+name: "Namespace grammar fixture — two segments"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "Namespace grammar tightening follow-up, 2026-07-30"
+  captured_by: lucian
+  captured_at: "2026-07-30T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []

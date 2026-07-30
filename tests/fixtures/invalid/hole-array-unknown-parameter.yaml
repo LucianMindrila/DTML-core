@@ -1,0 +1,38 @@
+x-dtml-schema: ../../../schemas/features/hole_array.schema.yaml
+
+# Deliberately invalid: feed_rate is not part of hole_array's typed
+# parameter shape — it's a machine-specific execution setting, which
+# OperationSpecification.md explicitly says does not belong on a
+# Feature (or an Operation) at all. unevaluatedProperties: false on the
+# composed hole_array_parameters shape must reject it.
+
+namespace: cuttingedgebespoke.feature
+id: hole_array_unknown_parameter
+name: "Invalid fixture — unrecognised parameter key"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "hole_array typed Feature work package, 2026-07-30"
+  captured_by: lucian
+  captured_at: "2026-07-30T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [fixture, hole_array]
+
+feature_type: hole_array
+parameters:
+  diameter: {literal: {value: 5, unit: mm}}
+  hole_form: blind
+  depth: {literal: {value: 13, unit: mm}}
+  pitch: {literal: {value: 32, unit: mm}}
+  count: {literal: {value: 5, unit: count}}
+  direction: {axis: y, sense: positive}
+  feed_rate: {literal: {value: 3000, unit: mm}}
+
+operation:
+  ref: cuttingedgebespoke.operation.vertical_drill
+  object_version: "1.0.0"

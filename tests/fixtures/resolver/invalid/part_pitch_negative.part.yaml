@@ -1,25 +1,23 @@
-x-dtml-schema: ../../../schemas/part.schema.yaml
+# Invalid: effective pitch resolves to -5mm.
+
+x-dtml-schema: ../../../../schemas/part.schema.yaml
 
 namespace: cuttingedgebespoke.part
-id: panel_with_shelf_pin_array
-name: "Side panel — shelf-pin array example"
-description: >
-  Fixture copy of examples/panel-with-shelf-pin-array.yaml, used to prove
-  the validator accepts a genuinely valid instance.
+id: part_pitch_negative
+name: "Negative pitch — resolver fixture"
 schema_version: "0.1"
 object_version: "1.0.0"
 status: draft
 provenance:
   source_type: narrated
-  source_reference: "Schema foundation work package, 2026-07-30"
+  source_reference: "Resolver v0.1 work package, 2026-07-30"
   captured_by: lucian
   captured_at: "2026-07-30T00:00:00Z"
   confidence: confirmed
   review_status: approved
   reviewed_by: lucian
   evidence: []
-tags: [example, foundation]
-
+tags: [fixture, resolver]
 material:
   ref: cuttingedgebespoke.material.birch_plywood
   object_version: "1.0.0"
@@ -41,26 +39,12 @@ dimensions:
 
 reference_face: front
 
-edge_banding:
-  - edge: top
-    applied: true
-  - edge: bottom
-    applied: true
-  - edge: left
-    applied: false
-  - edge: right
-    applied: false
-
 feature_instances:
   - feature:
       ref: cuttingedgebespoke.feature.shelf_pin_array
       object_version: "1.0.0"
     instance_parameters:
-      quantity: 5
-      start_position:
-        literal:
-          value: 100
-          unit: mm
+      pitch: {literal: {value: -5, unit: mm}}
     position:
       x:
         literal:

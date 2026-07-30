@@ -36,7 +36,7 @@ def load_yaml(path: Path):
 
 
 def schema_paths() -> list[Path]:
-    return sorted(SCHEMAS_DIR.glob("*.schema.yaml"))
+    return sorted(SCHEMAS_DIR.rglob("*.schema.yaml"))
 
 
 def build_registry(contents_by_path: dict[Path, dict]) -> Registry:
@@ -134,7 +134,12 @@ def resolve_declared_schema(instance_path: Path, schema_ref: str) -> Path:
     candidate = (instance_path.parent / schema_ref).resolve()
     if candidate.is_file():
         return candidate
-    candidate = SCHEMAS_DIR / Path(schema_ref).name
+    # Fallback: schema_ref given relative to schemas/ itself (e.g.
+    # "features/hole_array.schema.yaml") rather than relative to the
+    # instance file. Preserve the full relative path here — collapsing to
+    # Path(schema_ref).name would silently flatten subdirectories like
+    # schemas/features/ and fail to find the real file.
+    candidate = SCHEMAS_DIR / Path(schema_ref)
     if candidate.is_file():
         return candidate
     raise FileNotFoundError(schema_ref)

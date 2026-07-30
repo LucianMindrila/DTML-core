@@ -1,0 +1,34 @@
+x-dtml-schema: ../../../schemas/features/hole_array.schema.yaml
+
+# Deliberately invalid: diameter is required by hole_geometry.schema.yaml
+# and is absent here. Proves the shared fragment's required list is
+# actually enforced when composed into hole_array.
+
+namespace: cuttingedgebespoke.feature
+id: hole_array_missing_diameter
+name: "Invalid fixture — missing diameter"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "hole_array typed Feature work package, 2026-07-30"
+  captured_by: lucian
+  captured_at: "2026-07-30T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [fixture, hole_array]
+
+feature_type: hole_array
+parameters:
+  hole_form: blind
+  depth: {literal: {value: 13, unit: mm}}
+  pitch: {literal: {value: 32, unit: mm}}
+  count: {literal: {value: 5, unit: count}}
+  direction: {axis: y, sense: positive}
+
+operation:
+  ref: cuttingedgebespoke.operation.vertical_drill
+  object_version: "1.0.0"

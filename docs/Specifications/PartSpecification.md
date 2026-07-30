@@ -18,7 +18,7 @@ below).
 ## Worked example
 
 A side panel with one shelf-pin-array feature (full version in
-`../../examples/panel-with-shelf-pin-array.yaml`):
+`../../examples/panel_with_shelf_pin_array.part.yaml`):
 
 ```yaml
 namespace: cuttingedgebespoke.part
@@ -42,8 +42,8 @@ feature_instances:
       ref: cuttingedgebespoke.feature.shelf_pin_array
       object_version: "1.0.0"
     instance_parameters:
-      quantity: 5
-      start_position: {literal: {value: 100, unit: mm}}
+      count: {literal: {value: 5, unit: count}}
+      start_offset: {literal: {value: 100, unit: mm}}
     position:
       x: {literal: {value: 20, unit: mm}}
       y: {literal: {value: 20, unit: mm}}
@@ -126,8 +126,8 @@ something the Part record itself needs to express.
 A Feature definition's own `parameters` describe its typical/default
 shape (e.g. a shelf-pin-array's usual pitch). `instance_parameters` on
 the Part's `feature_instance` record supplies or overrides values that
-are specific to *this* placement — e.g. `quantity: 5` and a
-`start_position` for a shelf-pin array that happens to need only 5 pins
+are specific to *this* placement — e.g. `count: 5` and a
+`start_offset` for a shelf-pin array that happens to need only 5 pins
 on this particular panel instead of the Feature's typical count. Only
 the keys that differ need to be present; resolving the *effective*
 parameter set (Feature defaults overridden by instance values) is
@@ -196,12 +196,15 @@ a confirmed hole cluster becomes a `feature.schema.yaml` entry (e.g.
 
 ## Open questions
 
-- **Feature parameter typing.** `feature.schema.yaml`'s `parameters` (and
-  a Part's `instance_parameters`) are still open-ended
-  (`additionalProperties: true`) — nothing yet rejects
-  `instance_parameters: {banana_count: twelve}`. The planned next step is
-  a first properly-typed Feature type (`hole_array`), not closing the
-  object wholesale — see `FeatureSpecification.md` (forthcoming).
+- **Feature parameter typing.** `hole_array` is now typed
+  (`schemas/features/hole_array.schema.yaml` — see
+  `FeatureSpecification.md` and `HoleArrayFeatureSpecification.md`), but
+  every other `feature_type`'s `parameters` remains open-ended
+  (`additionalProperties: true`), and a Part's `instance_parameters` is
+  untyped regardless of `feature_type` — nothing yet rejects
+  `instance_parameters: {banana_count: twelve}` (see
+  `FeatureSpecification.md`, "Feature definition parameters vs. instance
+  overrides").
 - **`groove` parameter shape.** `groove` is a valid `feature_type`, but
   what a groove-shaped panel-to-panel slot joint actually needs
   (run direction, width, depth) isn't modelled yet beyond the generic

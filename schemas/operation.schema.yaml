@@ -2,6 +2,8 @@
 # A manufacturing process performed to create one or more Features. Must
 # remain machine-independent — a machine-specific cycle belongs in a
 # capability profile / post-processor, not here. See
+# docs/Specifications/OperationSpecification.md for the Feature / Operation
+# / capability-resolution boundary this schema enforces, and
 # docs/Specifications/SchemaConventions.md and docs/Architecture.md.
 $id: operation.schema.yaml
 $schema: https://json-schema.org/draft/2020-12/schema
@@ -19,7 +21,14 @@ $defs:
           parameters:
             type: object
             description: >
-              Operation-level parameters (e.g. tool diameter, feed rate).
-              Left open-ended in v0.1 — per-operation-type parameter
-              schemas are future work.
+              Process-level parameters genuinely independent of which
+              Feature invokes this Operation (e.g. a tolerance class) —
+              never resulting geometry (diameter, depth, hole_form —
+              Feature-owned, see OperationSpecification.md) and never
+              machine-specific execution settings (tool ID, feed rate,
+              spindle speed — future capability-resolution-owned). Left
+              open-ended in v0.1 — per-operation-type parameter schemas
+              are future work. Most v0.1 entries are expected to have
+              empty parameters, as vertical_drill does.
+            additionalProperties: true
     unevaluatedProperties: false

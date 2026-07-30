@@ -1,0 +1,44 @@
+# Hole geometry schema fragment — draft v0.1
+# Reusable parameter shape (diameter, hole_form, depth) shared by every
+# hole-producing Feature type — hole_array today, a future plain `hole`,
+# hinge/dowel/connector drilling later. Not a standalone Feature object:
+# always composed into a feature_type-specific schema via allOf. See
+# docs/Specifications/HoleArrayFeatureSpecification.md.
+$id: features/hole_geometry.schema.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+$ref: "#/$defs/hole_geometry"
+$defs:
+  hole_geometry:
+    type: object
+    required: [diameter, hole_form]
+    properties:
+      diameter:
+        $ref: "../expression.schema.yaml#/$defs/expression"
+      hole_form:
+        type: string
+        enum: [blind, through]
+        description: >
+          Feature-owned resulting geometry, not Operation-owned — see
+          OperationSpecification.md. countersunk/counterbored are
+          deferred until the multi-operation Feature model is resolved
+          (SchemaConventions.md, "Feature / Operation scope").
+      depth:
+        $ref: "../expression.schema.yaml#/$defs/expression"
+        description: >
+          Measured positively from the referenced face inward (z = 0 at
+          that face, z = depth at the hole's endpoint) — see
+          SchemaConventions.md, "Face-local coordinates and depth".
+    allOf:
+      - if:
+          properties:
+            hole_form: {const: blind}
+          required: [hole_form]
+        then:
+          required: [depth]
+      - if:
+          properties:
+            hole_form: {const: through}
+          required: [hole_form]
+        then:
+          not:
+            required: [depth]

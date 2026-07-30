@@ -6,7 +6,7 @@ standardises on per `../../docs/CorePrinciples.md` #2.
 
 Schema: `../../schemas/hardware.schema.yaml`
 
-**Only `source_confidence: confirmed` entries belong here.** Diameter
+**Only `provenance.confidence: confirmed` entries belong here.** Diameter
 patterns matched against known industry standards during DXF extraction
 (see `../../extractor/`) are hypotheses, not confirmed entries, until a
 human with real production knowledge confirms them — see

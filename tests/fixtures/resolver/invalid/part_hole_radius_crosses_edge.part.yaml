@@ -1,0 +1,58 @@
+# Invalid: anchor.x (1mm) is less than the hole's own radius
+# (diameter 5mm / 2 = 2.5mm), so the hole body would cross the
+# Part's left edge even though its centre's bare X (1mm) is >= 0.
+# Proves the bounds check is radius-aware, not a bare 0 <= x <= width.
+
+x-dtml-schema: ../../../../schemas/part.schema.yaml
+
+namespace: cuttingedgebespoke.part
+id: part_hole_radius_crosses_edge
+name: "Hole radius crosses edge — resolver fixture"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "Resolver v0.1 work package, 2026-07-30"
+  captured_by: lucian
+  captured_at: "2026-07-30T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [fixture, resolver]
+material:
+  ref: cuttingedgebespoke.material.birch_plywood
+  object_version: "1.0.0"
+
+thickness:
+  literal:
+    value: 18
+    unit: mm
+
+dimensions:
+  width:
+    literal:
+      value: 600
+      unit: mm
+  height:
+    literal:
+      value: 720
+      unit: mm
+
+reference_face: front
+
+feature_instances:
+  - feature:
+      ref: cuttingedgebespoke.feature.shelf_pin_array
+      object_version: "1.0.0"
+    position:
+      x:
+        literal:
+          value: 1
+          unit: mm
+      y:
+        literal:
+          value: 20
+          unit: mm
+    reference_face: front

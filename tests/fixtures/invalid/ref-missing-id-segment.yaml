@@ -1,0 +1,9 @@
+x-dtml-schema: ../../../schemas/reference.schema.yaml
+
+# Deliberately invalid: a two-segment ref points at a namespace, not a
+# specific object within it — the canonical id needs a third segment
+# (namespace + "." + id). Proves reference.schema.yaml's ref pattern is
+# tightened consistently with common.schema.yaml's namespace pattern.
+
+ref: cuttingedgebespoke.material
+object_version: "1.0.0"

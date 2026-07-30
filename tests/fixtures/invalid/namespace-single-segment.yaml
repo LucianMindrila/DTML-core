@@ -1,0 +1,21 @@
+x-dtml-schema: ../../../schemas/common.schema.yaml
+
+# Deliberately invalid: a single-token namespace has no dot, so it can't
+# separate an owning domain from an object category — exactly what
+# namespacing exists to prevent.
+
+namespace: feature
+id: namespace_single_segment
+name: "Invalid fixture — single-segment namespace"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "Namespace grammar tightening follow-up, 2026-07-30"
+  captured_by: lucian
+  captured_at: "2026-07-30T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []

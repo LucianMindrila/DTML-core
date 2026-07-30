@@ -32,11 +32,13 @@ $defs:
     properties:
       namespace:
         type: string
-        pattern: "^[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+        pattern: "^[a-z0-9_]+(\\.[a-z0-9_]+)+$"
         description: >
-          Owning domain and object category, dot-separated, e.g.
-          cuttingedgebespoke.feature. The canonical identifier is derived
-          as namespace + "." + id and must not be stored separately.
+          Owning domain and object category, dot-separated — at least two
+          segments (owner.category, e.g. cuttingedgebespoke.feature), so a
+          bare single-token namespace can't undermine the point of
+          namespacing. The canonical identifier is derived as
+          namespace + "." + id and must not be stored separately.
       id:
         type: string
         pattern: "^[a-z0-9_]+$"

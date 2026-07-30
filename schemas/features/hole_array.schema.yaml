@@ -1,0 +1,71 @@
+# hole_array Feature schema — draft v0.1
+# The first typed Feature-type contract: a repeating line of holes sharing
+# one hole_geometry, pitched along one axis. Composes the shared
+# hole_geometry fragment with array-specific properties, then closes over
+# feature.schema.yaml so a hole_array Feature's `parameters` can no longer
+# be an arbitrary open object. See
+# docs/Specifications/HoleArrayFeatureSpecification.md for the full
+# rationale (termination model, direction model, what's structurally
+# enforced here vs. deferred to semantic validation).
+$id: features/hole_array.schema.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+$ref: "#/$defs/hole_array_feature"
+$defs:
+  direction:
+    type: object
+    description: >
+      Relative to the Part's own local coordinate system (SchemaConventions.md,
+      "Part geometry conventions"), not the machine — axis/sense instead of
+      a positive_x/negative_x/... enum so a future third axis or reversed
+      convention doesn't require new enum members.
+    required: [axis, sense]
+    properties:
+      axis: {type: string, enum: [x, y]}
+      sense: {type: string, enum: [positive, negative]}
+    additionalProperties: false
+
+  hole_array_parameters:
+    type: object
+    description: >
+      Complete typed default shape for a hole_array Feature definition's
+      parameters. A Part's feature_instance.instance_parameters may
+      override any subset of these keys for a specific placement — the
+      Feature definition itself must supply the full set, so an instance
+      never has to override a value just to make the Feature valid.
+    allOf:
+      - $ref: "hole_geometry.schema.yaml#/$defs/hole_geometry"
+      - type: object
+        required: [pitch, count, direction]
+        properties:
+          pitch:
+            $ref: "../expression.schema.yaml#/$defs/expression"
+          count:
+            $ref: "../expression.schema.yaml#/$defs/expression"
+            description: >
+              An Expression (unit: count), not a bare integer — so a
+              future Module can drive count via formula/rule_reference,
+              not only a fixed literal. Integer-ness and positivity of
+              the resolved value are semantic-validation concerns, not
+              checked here — see HoleArrayFeatureSpecification.md.
+          start_offset:
+            $ref: "../expression.schema.yaml#/$defs/expression"
+            description: >
+              Optional non-negative scalar offset of the first hole from
+              feature_instance.position, measured along direction's axis
+              in direction's sense. Defaults to 0 (array begins exactly
+              at the anchor) when absent. Named "offset" rather than
+              "position" because it is never an absolute coordinate — see
+              SchemaConventions.md, "Face-local coordinates and depth",
+              and HoleArrayFeatureSpecification.md.
+          direction:
+            $ref: "#/$defs/direction"
+    unevaluatedProperties: false
+
+  hole_array_feature:
+    allOf:
+      - $ref: "../feature.schema.yaml#/$defs/feature"
+      - type: object
+        properties:
+          feature_type: {const: hole_array}
+          parameters: {$ref: "#/$defs/hole_array_parameters"}
+    unevaluatedProperties: false

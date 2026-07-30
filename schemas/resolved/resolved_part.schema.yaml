@@ -1,0 +1,121 @@
+# Resolved Part schema — draft v0.1
+# Output contract for dtml.resolver.resolve_part() — see
+# docs/Specifications/ResolverSpecification.md. Not a DTML knowledge
+# object (no namespace/id/provenance of its own): it's a derived,
+# fully-resolved artifact, not a source of truth. Unlike the source
+# schemas it's produced from, this schema DOES structurally enforce
+# positivity/integer-ness, because by construction every value here has
+# already been resolved to a concrete literal number — see
+# ResolverSpecification.md, "Why the resolved schema can be stricter".
+$id: resolved/resolved_part.schema.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+$ref: "#/$defs/resolved_part"
+$defs:
+  positive_mm:
+    type: number
+    exclusiveMinimum: 0
+
+  direction:
+    type: object
+    required: [axis, sense]
+    properties:
+      axis: {type: string, enum: [x, y]}
+      sense: {type: string, enum: [positive, negative]}
+    additionalProperties: false
+
+  point3:
+    type: object
+    required: [x, y, z]
+    properties:
+      x: {type: number}
+      y: {type: number}
+      z: {type: number}
+    additionalProperties: false
+
+  point2:
+    type: object
+    required: [x, y]
+    properties:
+      x: {type: number}
+      y: {type: number}
+    additionalProperties: false
+
+  resolved_hole:
+    type: object
+    required: [index, centre_mm, diameter_mm, depth_mm, hole_form]
+    properties:
+      index: {type: integer, minimum: 0}
+      centre_mm: {$ref: "#/$defs/point3"}
+      diameter_mm: {$ref: "#/$defs/positive_mm"}
+      depth_mm: {$ref: "#/$defs/positive_mm"}
+      hole_form: {type: string, enum: [blind, through]}
+    additionalProperties: false
+
+  hole_array_effective_parameters:
+    type: object
+    required: [diameter_mm, hole_form, pitch_mm, count, start_offset_mm, direction]
+    properties:
+      diameter_mm: {$ref: "#/$defs/positive_mm"}
+      hole_form: {type: string, enum: [blind, through]}
+      depth_mm: {$ref: "#/$defs/positive_mm"}
+      pitch_mm: {$ref: "#/$defs/positive_mm"}
+      count: {type: integer, minimum: 1}
+      start_offset_mm: {type: number, minimum: 0}
+      direction: {$ref: "#/$defs/direction"}
+    additionalProperties: false
+
+  resolved_feature:
+    type: object
+    required:
+      - instance_index
+      - feature
+      - operation
+      - reference_face
+      - anchor_mm
+      - effective_parameters
+      - holes
+    properties:
+      instance_index:
+        type: integer
+        minimum: 0
+        description: >
+          Position of this Feature instance within the source Part's
+          feature_instances array — not a stable id. See
+          ResolverSpecification.md.
+      feature: {$ref: "../reference.schema.yaml#/$defs/reference"}
+      operation: {$ref: "../reference.schema.yaml#/$defs/reference"}
+      reference_face: {type: string, enum: [front, back]}
+      anchor_mm: {$ref: "#/$defs/point2"}
+      effective_parameters: {$ref: "#/$defs/hole_array_effective_parameters"}
+      holes:
+        type: array
+        minItems: 1
+        items: {$ref: "#/$defs/resolved_hole"}
+    additionalProperties: false
+
+  resolved_part:
+    type: object
+    required:
+      - schema_version
+      - resolution_version
+      - source_part
+      - dimensions
+      - resolved_features
+    properties:
+      schema_version: {type: string}
+      resolution_version:
+        $ref: "../common.schema.yaml#/$defs/semantic_version"
+        description: "Version of the resolver's own output contract/algorithm, independent of schema_version."
+      source_part: {$ref: "../reference.schema.yaml#/$defs/reference"}
+      dimensions:
+        type: object
+        required: [width_mm, height_mm, thickness_mm]
+        properties:
+          width_mm: {$ref: "#/$defs/positive_mm"}
+          height_mm: {$ref: "#/$defs/positive_mm"}
+          thickness_mm: {$ref: "#/$defs/positive_mm"}
+        additionalProperties: false
+      resolved_features:
+        type: array
+        items: {$ref: "#/$defs/resolved_feature"}
+    additionalProperties: false

@@ -64,9 +64,17 @@ e.g. `namespace: cuttingedgebespoke.feature` + `id: shelf_pin_array` →
 own field would let it drift out of sync with `namespace`/`id`; deriving it
 means there's exactly one place the identity is defined.
 
-`namespace` and `id` both match `^[a-z0-9_]+(\.[a-z0-9_]+)*$` for
-`namespace` and `^[a-z0-9_]+$` for `id` (no dots — the namespace carries
-the hierarchy).
+`namespace` matches `^[a-z0-9_]+(\.[a-z0-9_]+)+$` — **at least two
+segments** (owner.category, e.g. `cuttingedgebespoke.feature`). A single
+token such as `namespace: feature` is rejected: it carries no owning
+domain, which defeats the point of namespacing before libraries even
+start proliferating. `id` matches `^[a-z0-9_]+$` (no dots — the namespace
+carries the hierarchy), and a full canonical `ref`
+(`reference.schema.yaml#/$defs/reference`) is therefore at least three
+segments — namespace (2+) + `.` + `id` (1) — enforced by the same
+tightened pattern in `reference.schema.yaml` so the two can't drift apart.
+See `tests/fixtures/valid/namespace-*.yaml` and
+`tests/fixtures/invalid/namespace-*.yaml` / `ref-missing-id-segment.yaml`.
 
 ### `schema_version` vs. `object_version`
 
@@ -172,6 +180,98 @@ kinds of quantity are needed.
 - **Edge naming**: `top | bottom | left | right`, relative to the part as
   oriented at its origin.
 
+## Face-local coordinates and depth (resolver v0.1 scope)
+
+This extends the origin/X/Y convention above with the Z axis and the
+front/back relationship, settled now (rather than left implicit) because
+the first Feature-coordinate resolver's output — resolved hole
+coordinates for a per-panel DXF — would otherwise be ambiguous the
+moment a `feature_instance`'s `reference_face` is `back`.
+
+### Face-local frame
+
+Each rectangular Part face defines an independent face-local coordinate
+frame. When the referenced face (`feature_instance.reference_face`,
+`part.schema.yaml`) is viewed from outside the Part, the origin is at
+its bottom-left corner, positive X extends to the right, positive Y
+extends upward, and positive Z extends inward into the material. (This
+is a face-local convention, not a claim of 3D right-handedness — with X
+right and Y up, "Z inward" is left-handed under the conventional
+cross-product definition, but handedness isn't a meaningful claim to
+make before a shared 3D model exists.)
+
+### Depth
+
+Feature depth is measured positively from the referenced face inward.
+The referenced surface is `z = 0`; the opposing surface is `z =` the
+Part's resolved `thickness` (`part.schema.yaml`'s `thickness` field). A
+blind hole's endpoint is `z = depth`. A through hole has no `depth`
+parameter at all (`hole_geometry.schema.yaml` forbids it); its effective
+depth is the full resolved `thickness`.
+
+### Opposing faces are mirrored, not shared
+
+Front and back each use the same viewer-relative X/Y convention
+independently — the bottom-left/X-right/Y-up rule applies separately to
+whichever face is being viewed. Because viewing the back face means
+looking at the Part from the opposite side, front and back face-local
+frames are mirrored in physical space: **equal X/Y coordinates on
+opposing faces are not the same physical through-thickness point.**
+
+For a rectangular Part, the physical relationship between a front-face
+point and the back-face point at the same physical through-thickness
+location is:
+
+```
+x_back = part.dimensions.width - x_front
+y_back = y_front
+z_back = part.thickness - z_front
+```
+
+(equivalent to notionally flipping the Part around its vertical Y axis
+to change viewing face.) This is recorded for future semantic rules or
+helper functions that need to correlate features across faces — it is
+*not* needed to resolve a single `feature_instance`'s own coordinates,
+since every `feature_instance` already carries its own `reference_face`
+and resolves entirely within that face's frame.
+
+Face-local mirroring is a deliberate choice, not the only possible one —
+the alternative (a single shared material-coordinate frame spanning both
+faces) was considered and rejected because it doesn't match the
+"viewed from reference_face" wording above, and because face-local
+frames are what a per-face engineering drawing, DXF export, or machine
+operator actually expects. The face-local → machine/post-processor
+coordinate transform (which depends on physical setup/loading, not just
+geometry) is a capability/manufacturing-resolution concern — see
+`OperationSpecification.md` — not something the source Feature model or
+this resolver needs to know about.
+
+### v0.1 resolver scope
+
+The first Feature-coordinate resolver supports:
+
+- **flat, rectangular Parts only** — non-rectangular Parts are rejected
+  as unsupported. Shaped-panel datums raise questions (bounding-box vs.
+  design datum, negative coordinates, concave profiles, orientation
+  after nesting) that are deferred until a real shaped-panel example
+  forces the decision.
+- **Part-local, face-local coordinates only** — one `reference_face` at
+  a time, per `feature_instance`.
+- **no rotational placement** — `degrees` already exists as an
+  Expression `unit`, but no positive-angle (clockwise/counterclockwise)
+  convention is defined yet, and won't be until a Feature schema
+  actually introduces angular placement.
+- **no assembly/world transforms** — Part → Module → Furniture → Room
+  composition is out of scope for this resolver.
+
+Resolved output is therefore always:
+
+```
+Part-local → face-local → Feature coordinates
+```
+
+nothing further up or down that chain.
+
 ## Feature / Operation scope (v0.1)
 
 A Feature definition references exactly one Operation:
@@ -187,6 +287,38 @@ operation. Multi-operation features are deferred until validated by a
 real manufacturing example.** This limitation lives here and in
 `FeatureSpecification.md`, not as a `TBD` inside the schema itself — a
 schema should describe current valid behaviour, not future uncertainty.
+A countersunk hole (cylindrical hole + conical recess, producible as
+either one combined operation or two sequential ones) is the concrete
+future example expected to force this decision — see
+`OperationSpecification.md`, "Why countersink isn't its own
+`operation_type`".
+
+See `OperationSpecification.md` for the fuller Feature / Operation /
+capability-resolution ownership boundary (which values belong on which
+side of this reference, and why).
+
+### Typed Feature schemas: `schemas/features/`
+
+`feature.schema.yaml` fixes the generic Feature shape, but leaves
+`parameters` open (`additionalProperties: true`) since the actual
+parameter shape differs per `feature_type`. A specific `feature_type` can
+be typed by adding `schemas/features/<feature_type>.schema.yaml`,
+composing `../feature.schema.yaml#/$defs/feature` with a type-specific
+`parameters` shape via `allOf`, closed with `unevaluatedProperties: false`
+— the same allOf-then-close-one-level-up pattern this document already
+uses for `common.schema.yaml#/$defs/knowledge_object`. Shared geometry
+that multiple `feature_type`s need (e.g. a hole's diameter/hole_form/
+depth) belongs in its own reusable `$defs` fragment file, composed into
+each typed schema the same way, rather than duplicated per type.
+`hole_array.schema.yaml` + `hole_geometry.schema.yaml` are the worked
+example — see `FeatureSpecification.md` and
+`HoleArrayFeatureSpecification.md`.
+
+`tools/validate_schema.py`'s schema discovery walks `schemas/`
+recursively (`rglob`, not `glob`) specifically so this subdirectory is
+picked up automatically; an instance still declares which schema it
+conforms to via a normal `x-dtml-schema: ../schemas/features/
+<feature_type>.schema.yaml` reference.
 
 ## Validator scope
 
