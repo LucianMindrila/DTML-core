@@ -51,9 +51,14 @@ Part/Feature documents exercising `dtml.resolver.resolve_part()` (see
 - `fixtures/resolver/invalid/` — Parts that are **schema-valid** but
   **resolver-invalid**: a bad reference, an unsupported `formula`
   Expression, a semantic-validation violation (non-integral count,
-  negative pitch, blind depth >= thickness), or a hole landing outside
-  the Part's bounds. `validate_schema.py` accepts every one of these too
-  — that's the point: the resolver is the only layer that catches them.
+  negative pitch, blind depth >= thickness), a hole landing outside
+  the Part's bounds, or a `feature_type` valid DTML but not implemented
+  by resolver v0.1 (`pocket_feature.feature.yaml` +
+  `part_unsupported_feature_type.part.yaml` — see
+  `../docs/Specifications/ResolvedGeometrySpecification.md`'s three-way
+  `feature_type` support rule). `validate_schema.py` accepts every one
+  of these too — that's the point: the resolver is the only layer that
+  catches them.
 
 Both subdirectories reuse `examples/shelf_pin_array.feature.yaml` and
 `examples/vertical_drill.operation.yaml` by reference (found via the
@@ -84,4 +89,8 @@ per-layer hole count/diameter/centre, unit header variables, and the
 `DTML` XDATA metadata round-tripping through a save/reload cycle. One
 test asserts the acceptance criterion directly — that the renderer never
 touches the filesystem, i.e. never re-opens or re-parses a DTML source
-document from within the render path itself.
+document from within the render path itself. Another proves the
+renderer's `feature_type` conformance rule (see
+`../docs/Specifications/ResolvedGeometrySpecification.md`): an
+unrecognised `feature_type` raises `dxf.errors.UnsupportedFeatureType`
+and aborts the whole render, rather than being silently skipped.

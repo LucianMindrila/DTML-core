@@ -9,8 +9,10 @@ from within the render path itself.
 from pathlib import Path
 
 import ezdxf
+import pytest
 
 from dtml.resolver import resolve_part
+from dxf.errors import UnsupportedFeatureType
 from dxf.layers import HOLES_BACK, HOLES_FRONT, PANEL_OUTLINE
 from dxf.render import render_resolved_part
 
@@ -72,6 +74,22 @@ def test_metadata_round_trips_through_save_and_reload(tmp_path):
     assert resolved["source_part"]["ref"] in xdata
     assert resolved["source_part"]["object_version"] in xdata
     assert resolved["resolution_version"] in xdata
+
+
+def test_unsupported_feature_type_is_rejected_not_skipped():
+    """Per ResolvedGeometrySpecification.md's three-way support rule: a
+    resolved_feature the renderer doesn't recognise must fail the whole
+    render, never be silently omitted. The resolver itself never produces
+    a feature_type other than hole_array today, so this mutates an
+    otherwise-valid resolved dict to simulate a future branch this
+    renderer version doesn't yet implement.
+    """
+    resolved = _resolved_shelf_pin_panel()
+    resolved["resolved_features"][0]["feature_type"] = "groove"
+
+    with pytest.raises(UnsupportedFeatureType) as exc_info:
+        render_resolved_part(resolved)
+    assert exc_info.value.feature_type == "groove"
 
 
 def test_renderer_never_touches_unresolved_source_documents(monkeypatch):

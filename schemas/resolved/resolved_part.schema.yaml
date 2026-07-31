@@ -64,16 +64,21 @@ $defs:
       direction: {$ref: "#/$defs/direction"}
     additionalProperties: false
 
-  resolved_feature:
+  resolved_feature_common:
     type: object
+    description: >
+      Fields shared by every feature_type branch — see
+      docs/Specifications/ResolvedGeometrySpecification.md. Not used
+      directly; each branch composes this via allOf and closes over it
+      with unevaluatedProperties, the same technique
+      schemas/features/hole_array.schema.yaml already uses to compose
+      feature.schema.yaml.
     required:
       - instance_index
+      - feature_type
       - feature
       - operation
       - reference_face
-      - anchor_mm
-      - effective_parameters
-      - holes
     properties:
       instance_index:
         type: integer
@@ -82,16 +87,39 @@ $defs:
           Position of this Feature instance within the source Part's
           feature_instances array — not a stable id. See
           ResolverSpecification.md.
+      feature_type: {type: string}
       feature: {$ref: "../reference.schema.yaml#/$defs/reference"}
       operation: {$ref: "../reference.schema.yaml#/$defs/reference"}
       reference_face: {type: string, enum: [front, back]}
-      anchor_mm: {$ref: "#/$defs/point2"}
-      effective_parameters: {$ref: "#/$defs/hole_array_effective_parameters"}
-      holes:
-        type: array
-        minItems: 1
-        items: {$ref: "#/$defs/resolved_hole"}
-    additionalProperties: false
+
+  resolved_feature_hole_array:
+    allOf:
+      - $ref: "#/$defs/resolved_feature_common"
+      - type: object
+        required: [anchor_mm, effective_parameters, geometry]
+        properties:
+          feature_type: {const: hole_array}
+          anchor_mm: {$ref: "#/$defs/point2"}
+          effective_parameters: {$ref: "#/$defs/hole_array_effective_parameters"}
+          geometry:
+            type: object
+            required: [holes]
+            properties:
+              holes:
+                type: array
+                minItems: 1
+                items: {$ref: "#/$defs/resolved_hole"}
+            additionalProperties: false
+    unevaluatedProperties: false
+
+  resolved_feature:
+    description: >
+      Polymorphic — one branch per feature_type. See
+      docs/Specifications/ResolvedGeometrySpecification.md. Only
+      hole_array is implemented today; a new Feature type adds a new
+      branch here, never a special case bolted onto an existing one.
+    oneOf:
+      - $ref: "#/$defs/resolved_feature_hole_array"
 
   resolved_part:
     type: object

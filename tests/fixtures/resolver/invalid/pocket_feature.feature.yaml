@@ -1,0 +1,32 @@
+x-dtml-schema: ../../../../schemas/feature.schema.yaml
+
+# Resolver fixture: a schema-valid Feature whose feature_type (pocket) is
+# known to the DTML specification (present in feature.schema.yaml's enum)
+# but not implemented by resolver v0.1 — the "known but unsupported" case
+# in docs/Specifications/ResolvedGeometrySpecification.md's three-way
+# feature_type support rule. Untyped (no schemas/features/pocket.schema.yaml
+# exists yet), so parameters is left empty.
+
+namespace: cuttingedgebespoke.feature
+id: pocket_feature
+name: "Pocket — resolver fixture"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "Resolved geometry polymorphism work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [fixture, resolver]
+
+feature_type: pocket
+parameters: {}
+
+operation:
+  ref: cuttingedgebespoke.operation.vertical_drill
+  object_version: "1.0.0"

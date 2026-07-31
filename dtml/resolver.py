@@ -8,7 +8,7 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 
 from . import coordinate_system, expressions, merge, semantic_validation
-from .errors import SemanticValidationError
+from .errors import SemanticValidationError, UnsupportedFeatureType
 from .loader import (
     EXAMPLES_DIR,
     SCHEMAS_DIR,
@@ -54,10 +54,8 @@ def resolve_part(part_path: Path, search_roots: list[Path] | None = None) -> dic
         resolve_reference(feature["operation"], index, f"{instance_path}.feature.operation")
 
         if feature.get("feature_type") != "hole_array":
-            raise SemanticValidationError(
-                f"{instance_path}.feature",
-                f"resolver v0.1 only supports feature_type 'hole_array', "
-                f"got '{feature.get('feature_type')}'",
+            raise UnsupportedFeatureType(
+                f"{instance_path}.feature", feature.get("feature_type")
             )
 
         # Stage 4 (Feature-level): resolve defaults and overrides
@@ -122,12 +120,13 @@ def resolve_part(part_path: Path, search_roots: list[Path] | None = None) -> dic
 
         resolved_features.append({
             "instance_index": i,
+            "feature_type": "hole_array",
             "feature": instance["feature"],
             "operation": feature["operation"],
             "reference_face": instance["reference_face"],
             "anchor_mm": {"x": anchor["x"], "y": anchor["y"]},
             "effective_parameters": effective_parameters_out,
-            "holes": holes,
+            "geometry": {"holes": holes},
         })
 
     # Stage 9: emit resolved model.

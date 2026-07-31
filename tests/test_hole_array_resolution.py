@@ -12,6 +12,7 @@ from dtml.errors import (
     ReferenceResolutionError,
     SemanticValidationError,
     UnsupportedExpressionForm,
+    UnsupportedFeatureType,
 )
 from dtml.loader import SCHEMAS_DIR, load_yaml, schema_registry
 from dtml.resolver import resolve_part
@@ -31,7 +32,7 @@ def assert_schema_valid(resolved: dict) -> None:
 
 
 def centres_of(resolved: dict, instance_index: int = 0):
-    holes = resolved["resolved_features"][instance_index]["holes"]
+    holes = resolved["resolved_features"][instance_index]["geometry"]["holes"]
     return [(h["centre_mm"]["x"], h["centre_mm"]["y"]) for h in holes]
 
 
@@ -46,9 +47,10 @@ def test_canonical_example_positive_y():
         (20, 120), (20, 152), (20, 184), (20, 216), (20, 248),
     ]
     feature = resolved["resolved_features"][0]
+    assert feature["feature_type"] == "hole_array"
     assert feature["reference_face"] == "front"
     assert feature["effective_parameters"]["direction"] == {"axis": "y", "sense": "positive"}
-    for hole in feature["holes"]:
+    for hole in feature["geometry"]["holes"]:
         assert hole["hole_form"] == "blind"
         assert hole["depth_mm"] == 13
 
@@ -79,7 +81,7 @@ def test_through_hole_depth_resolves_to_part_thickness():
     feature = resolved["resolved_features"][0]
     assert "depth_mm" not in feature["effective_parameters"]
     assert centres_of(resolved) == [(300, 70), (300, 110), (300, 150)]
-    for hole in feature["holes"]:
+    for hole in feature["geometry"]["holes"]:
         assert hole["hole_form"] == "through"
         assert hole["depth_mm"] == 18  # the Part's own thickness
 
@@ -120,6 +122,13 @@ def test_formula_expression_is_rejected():
         resolve_part(INVALID_DIR / "part_formula_unsupported.part.yaml")
     assert exc_info.value.form == "formula"
     assert "instance_parameters.count" in exc_info.value.path
+
+
+def test_unsupported_feature_type_is_rejected():
+    with pytest.raises(UnsupportedFeatureType) as exc_info:
+        resolve_part(INVALID_DIR / "part_unsupported_feature_type.part.yaml")
+    assert exc_info.value.feature_type == "pocket"
+    assert "feature_instances[0].feature" in exc_info.value.path
 
 
 def test_missing_referenced_feature_is_rejected():

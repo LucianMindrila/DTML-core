@@ -213,8 +213,13 @@ the referencing document is itself perfectly schema-valid.
 
 ## Resolved output contract
 
-`schemas/resolved/resolved_part.schema.yaml` is the output contract. See
-that file for the authoritative shape; in outline:
+`schemas/resolved/resolved_part.schema.yaml` is the output contract.
+`resolved_feature` is polymorphic — its exact shape depends on
+`feature_type` — see `ResolvedGeometrySpecification.md` for the full
+contract (common envelope, `oneOf` branches, the three-way
+unknown/unsupported/supported `feature_type` rule, and the extension
+procedure for adding a new branch). In outline, for the one branch
+implemented today (`hole_array`):
 
 ```yaml
 schema_version: "0.1"
@@ -223,17 +228,19 @@ source_part: {ref: ..., object_version: ...}
 dimensions: {width_mm, height_mm, thickness_mm}
 resolved_features:
   - instance_index: 0
+    feature_type: hole_array
     feature: {ref: ..., object_version: ...}
     operation: {ref: ..., object_version: ...}
     reference_face: front
     anchor_mm: {x, y}
     effective_parameters: {diameter_mm, hole_form, depth_mm, pitch_mm, count, start_offset_mm, direction}
-    holes:
-      - index: 0
-        centre_mm: {x, y, z}
-        diameter_mm: ...
-        depth_mm: ...
-        hole_form: ...
+    geometry:
+      holes:
+        - index: 0
+          centre_mm: {x, y, z}
+          diameter_mm: ...
+          depth_mm: ...
+          hole_form: ...
 ```
 
 `resolution_version` versions the resolver's own output contract and
@@ -248,7 +255,7 @@ of its own yet (open question, `HoleArrayFeatureSpecification.md`), so
 an index is what's honestly available — calling it an "id" would imply a
 stable identity that doesn't exist yet.
 
-`effective_parameters` is kept alongside `holes` deliberately, even
+`effective_parameters` is kept alongside `geometry` deliberately, even
 though every value it contains is already reflected per-hole: it lets an
 engineering reviewer see exactly which merged values produced the array,
 without having to reverse-engineer them from the generated points.

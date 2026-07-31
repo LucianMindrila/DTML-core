@@ -41,6 +41,21 @@ class UnsupportedExpressionForm(ResolutionError):
         self.form = form
 
 
+class UnsupportedFeatureType(ResolutionError):
+    """A feature_type valid DTML (present in feature.schema.yaml's enum)
+    but not yet implemented by resolver v0.1 — the "known but
+    unsupported" case in ResolvedGeometrySpecification.md's three-way
+    feature_type support rule."""
+
+    def __init__(self, path: str, feature_type: str):
+        super().__init__(
+            path,
+            f"feature_type '{feature_type}' is valid DTML but unsupported "
+            f"by resolver v0.1.",
+        )
+        self.feature_type = feature_type
+
+
 class SemanticValidationError(ResolutionError):
     """A resolved value violates a semantic rule the source schema
     deliberately leaves unstructural (see HoleArrayFeatureSpecification.md,

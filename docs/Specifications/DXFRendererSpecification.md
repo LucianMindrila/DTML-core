@@ -95,14 +95,24 @@ existing.
   `(0,0) → (width_mm,0) → (width_mm,height_mm) → (0,height_mm)`, on
   `PANEL_OUTLINE`. Coordinates come directly from `resolved.dimensions`;
   the renderer does not re-derive or validate them.
-- **Holes** — one `CIRCLE` per resolved hole, `center` = the hole's
-  `centre_mm.x`/`centre_mm.y`, `radius` = `diameter_mm / 2`, on the layer
-  for that feature instance's `reference_face`. `centre_mm.z` and
-  `depth_mm`/`hole_form` are not represented as separate DXF geometry in
-  v0.1 (a 2D circle at true diameter is the literal translation the
-  acceptance criterion asks for) — depth/form differentiation by layer
-  or block attribute is deferred until a real downstream consumer needs
-  it.
+- **Holes** — one `CIRCLE` per resolved hole (`resolved_feature.geometry
+  .holes[]` — see `ResolvedGeometrySpecification.md` for why hole
+  geometry lives under a branch-specific `geometry` key rather than a
+  top-level field), `center` = the hole's `centre_mm.x`/`centre_mm.y`,
+  `radius` = `diameter_mm / 2`, on the layer for that feature instance's
+  `reference_face`. `centre_mm.z` and `depth_mm`/`hole_form` are not
+  represented as separate DXF geometry in v0.1 (a 2D circle at true
+  diameter is the literal translation the acceptance criterion asks for)
+  — depth/form differentiation by layer or block attribute is deferred
+  until a real downstream consumer needs it.
+
+Before drawing a `resolved_feature`, the renderer checks its
+`feature_type`. Only `hole_array` is implemented; any other value raises
+`dxf.errors.UnsupportedFeatureType` and aborts the entire render, rather
+than skipping that feature and producing a DXF file that looks complete
+but is silently missing geometry — the renderer-conformance requirement
+`ResolvedGeometrySpecification.md`'s three-way `feature_type` support
+rule imposes on every consumer of a `resolved_part`.
 
 ## Units
 
@@ -134,13 +144,17 @@ resolved model, from which resolver version, produced this specific
 `render_resolved_part()`, and inspects the result with `ezdxf`'s
 modelspace query API — never re-opening or re-parsing any DTML source
 document from within the render path itself. Assertions cover: outline
-point coordinates, per-layer circle count/diameter/centre, and the
-XDATA metadata round-tripping through a save/reload cycle.
+point coordinates, per-layer circle count/diameter/centre, the XDATA
+metadata round-tripping through a save/reload cycle, and — by mutating
+an otherwise-valid resolved dict's `feature_type` — that an unrecognised
+`feature_type` raises `dxf.errors.UnsupportedFeatureType` and aborts the
+render rather than being silently skipped.
 
 ## What's not built yet
 
 - Multi-Part sheet layout/nesting.
 - Any annotation beyond raw outline + hole geometry.
 - Hole-form-aware layer or block differentiation (through vs. blind).
-- Any Feature type other than `hole_array` (blocked on the resolver
-  supporting more than one).
+- Rendering any Feature type other than `hole_array` — the renderer
+  rejects them explicitly (see "Entities" above); adding a second
+  branch is `ResolvedGeometrySpecification.md`'s extension procedure.

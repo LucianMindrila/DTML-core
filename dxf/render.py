@@ -10,6 +10,7 @@ from __future__ import annotations
 import ezdxf
 from ezdxf.document import Drawing
 
+from .errors import UnsupportedFeatureType
 from .layers import ALL_LAYERS, PANEL_OUTLINE, hole_layer_for_face
 
 DTML_APPID = "DTML"
@@ -39,8 +40,10 @@ def render_resolved_part(resolved: dict) -> Drawing:
     outline.set_xdata(DTML_APPID, _source_xdata(resolved))
 
     for feature in resolved["resolved_features"]:
+        if feature["feature_type"] != "hole_array":
+            raise UnsupportedFeatureType(feature["feature_type"])
         layer = hole_layer_for_face(feature["reference_face"])
-        for hole in feature["holes"]:
+        for hole in feature["geometry"]["holes"]:
             centre = hole["centre_mm"]
             msp.add_circle(
                 center=(centre["x"], centre["y"]),
