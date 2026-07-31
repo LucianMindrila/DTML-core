@@ -21,12 +21,14 @@ provenance:
   evidence: []
 
 material:
-  ref: cuttingedgebespoke.material.birch_plywood
+  ref: cuttingedgebespoke.material.egger_w1000_18mm
 
 thickness:
   literal:
     value: 18
     unit: mm
+
+construction: single_18mm
 
 dimensions:
   width:

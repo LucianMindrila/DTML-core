@@ -91,7 +91,7 @@ explicitly, never a bare `version`, so it's unambiguous which axis is being
 pinned:
 
 ```yaml
-ref: cuttingedgebespoke.material.birch_plywood
+ref: cuttingedgebespoke.material.egger_w1000_18mm
 object_version: "1.2.0"
 ```
 
@@ -325,7 +325,7 @@ conforms to via a normal `x-dtml-schema: ../schemas/features/
 `tools/validate_schema.py` checks JSON Schema *shape* conformance only: is
 this a valid Draft 2020-12 schema, and does an instance document match the
 schema it declares. It does not resolve whether a referenced object
-(`ref: cuttingedgebespoke.material.birch_plywood`) actually exists in
+(`ref: cuttingedgebespoke.material.egger_w1000_18mm`) actually exists in
 `library/`, or whether its `object_version` is current — that's a semantic
 check belonging to the future Validation Engine, not this conformance
 tool.

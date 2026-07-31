@@ -22,8 +22,10 @@ provenance:
   evidence: []
 tags: [fixture, resolver]
 material:
-  ref: cuttingedgebespoke.material.birch_plywood
+  ref: cuttingedgebespoke.material.egger_w1000_18mm
   object_version: "1.0.0"
+
+construction: single_18mm
 
 thickness:
   literal:

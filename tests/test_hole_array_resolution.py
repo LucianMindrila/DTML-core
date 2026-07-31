@@ -41,8 +41,15 @@ def centres_of(resolved: dict, instance_index: int = 0):
 def test_canonical_example_positive_y():
     resolved = resolve_part(EXAMPLES_DIR / "panel_with_shelf_pin_array.part.yaml")
     assert_schema_valid(resolved)
-    assert resolved["resolution_version"] == "0.1.0"
+    assert resolved["resolution_version"] == "0.2.0"
+    assert resolved["construction"] == "single_18mm"
     assert resolved["dimensions"] == {"width_mm": 600, "height_mm": 720, "thickness_mm": 18}
+    assert [edge["edge"] for edge in resolved["resolved_edges"]] == ["top", "bottom"]
+    assert all(edge["length_mm"] == 600 for edge in resolved["resolved_edges"])
+    assert all(
+        edge["process_requirements"]["pre_mill"] == {"required": True, "removal_mm": 1}
+        for edge in resolved["resolved_edges"]
+    )
     assert centres_of(resolved) == [
         (20, 120), (20, 152), (20, 184), (20, 216), (20, 248),
     ]

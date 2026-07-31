@@ -60,8 +60,13 @@ resolved_feature:
   oneOf:
     - $ref: "#/$defs/resolved_feature_hole_array"
     - $ref: "#/$defs/resolved_feature_groove"
-    # future branches (edge_band, ...) added here deliberately, one at a
-    # time, each forcing exactly one existing worked example.
+    # future branches added here deliberately, one at a time, each
+    # forcing exactly one existing worked example. Edge-banding is NOT
+    # one of these: it isn't a placed Feature instance (no anchor, no
+    # feature_instances entry) — it's a treatment attached to one of the
+    # Part's own four named edges. It's carried instead as a sibling
+    # resolved_edges array on resolved_part — see
+    # EdgeTreatmentSpecification.md and "resolved_edges" below.
 ```
 
 Each branch combines the common envelope with its own type-specific
@@ -106,6 +111,26 @@ swept capsule's physical extremes — see
 `GrooveFeatureSpecification.md`, "Geometry model", for why the capsule
 bulges past each endpoint by `width_mm / 2` along the direction of
 travel, and how the inset-rectangle bounds rule accounts for that.
+
+## `resolved_edges` — a sibling array, not a `resolved_feature` branch
+
+Edge-banding (implemented) does **not** join the `resolved_feature`
+`oneOf` above, even though it's a per-Feature-looking concept at first
+glance. It's carried as `resolved_part.resolved_edges`, a top-level
+array alongside (not inside) `resolved_features`. This is a deliberate
+departure from the extension procedure below, not an oversight — see
+`EdgeTreatmentSpecification.md` for the full reasoning, in short:
+
+- an edge treatment has no `feature_instances` entry, no anchor, and no
+  Feature/Operation reference pair to carry in the common envelope — it
+  is a property of one of the Part's own four fixed edges, not something
+  a Part author places;
+- `resolved_edges` only contains edges that actually carry a treatment —
+  an untreated edge simply has no entry, there is no `applied: false`
+  placeholder in the resolved contract (contrast this with the source
+  `edge_banding` convention in `PartSpecification.md`, which does record
+  an explicit `applied: false`; the resolver's job is to reduce that
+  source-level bookkeeping down to the treatments that actually exist).
 
 ## Three-way `feature_type` support rule
 
@@ -185,5 +210,7 @@ extension procedure, followed step by step) required no changes to the
 Implemented: the common envelope and both the `hole_array` and `groove`
 branches, in `schemas/resolved/resolved_part.schema.yaml`,
 `dtml/resolver.py`, and `dxf/render.py`. Not implemented: any further
-branch (e.g. `edge_band`) — the extension procedure above is what will
-produce one for real.
+`resolved_feature` branch — the extension procedure above is what will
+produce one for real. Edge-banding is tracked separately as
+`resolved_edges` (see above) and is never going to be a
+`resolved_feature` branch, implemented or not.

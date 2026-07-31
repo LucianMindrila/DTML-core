@@ -19,7 +19,7 @@ from .loader import (
 )
 from .references import resolve_reference
 
-RESOLUTION_VERSION = "0.1.0"
+RESOLUTION_VERSION = "0.2.0"
 
 
 def default_search_roots(part_path: Path) -> list[Path]:
@@ -43,6 +43,15 @@ def resolve_part(part_path: Path, search_roots: list[Path] | None = None) -> dic
     height = expressions.resolve_value(part["dimensions"]["height"], "$.dimensions.height")
 
     semantic_validation.validate_part_dimensions(width, height, thickness, "$")
+
+    # Stage 3 (material): resolve part.material, then cross-check
+    # construction against its thickness_mm — see MaterialSpecification.md,
+    # "Thickness cross-check: now enforced".
+    part_material = resolve_reference(part["material"], index, "$.material")
+    semantic_validation.validate_material_type(part_material, "panel_stock", "$.material")
+    semantic_validation.validate_construction_thickness(
+        part["construction"], thickness, part_material["thickness_mm"], "$"
+    )
 
     resolved_features = []
     for i, instance in enumerate(part.get("feature_instances", [])):
@@ -81,6 +90,8 @@ def resolve_part(part_path: Path, search_roots: list[Path] | None = None) -> dic
                 i, instance_path,
             ))
 
+    resolved_edges = _resolve_edge_treatments(part, index, width, height)
+
     # Stage 9: emit resolved model.
     resolved_part = {
         "schema_version": part["schema_version"],
@@ -89,12 +100,14 @@ def resolve_part(part_path: Path, search_roots: list[Path] | None = None) -> dic
             "ref": f"{part['namespace']}.{part['id']}",
             "object_version": part["object_version"],
         },
+        "construction": part["construction"],
         "dimensions": {
             "width_mm": width,
             "height_mm": height,
             "thickness_mm": thickness,
         },
         "resolved_features": resolved_features,
+        "resolved_edges": resolved_edges,
     }
 
     # Stage 10: validate the assembled output against its own contract, as
@@ -109,6 +122,65 @@ def resolve_part(part_path: Path, search_roots: list[Path] | None = None) -> dic
         )
 
     return resolved_part
+
+
+def _resolve_edge_treatments(
+    part: dict, index: dict, width: float, height: float
+) -> list[dict]:
+    """Sparse by construction — only edges that actually carry a treatment
+    produce an entry. See EdgeTreatmentSpecification.md."""
+    edge_treatments = part.get("edge_treatments", [])
+    semantic_validation.validate_no_duplicate_edges(edge_treatments, "$.edge_treatments")
+
+    resolved_edges = []
+    for i, treatment in enumerate(edge_treatments):
+        treatment_path = f"$.edge_treatments[{i}]"
+        band = treatment["band"]
+
+        band_material = resolve_reference(
+            band["material"], index, f"{treatment_path}.band.material"
+        )
+        semantic_validation.validate_material_type(
+            band_material, "edge_band", f"{treatment_path}.band.material"
+        )
+
+        band_thickness = expressions.resolve_value(
+            band["thickness_mm"], f"{treatment_path}.band.thickness_mm"
+        )
+        band_width = expressions.resolve_value(
+            band["width_mm"], f"{treatment_path}.band.width_mm"
+        )
+        semantic_validation.validate_edge_band_dimensions(
+            band_thickness, band_width, f"{treatment_path}.band"
+        )
+        semantic_validation.validate_edge_band_material_thickness(
+            band_thickness, band_material["thickness_mm"], f"{treatment_path}.band.thickness_mm"
+        )
+
+        # length_mm is derived from the Part's own finished dimensions, not
+        # carried from the source — see EdgeTreatmentSpecification.md,
+        # "length_mm: computed from finished dimensions".
+        edge = treatment["edge"]
+        length = width if edge in ("top", "bottom") else height
+
+        resolved_edges.append({
+            "edge": edge,
+            "treatment_type": treatment["treatment_type"],
+            "band": {
+                "material": band["material"],
+                "thickness_mm": band_thickness,
+                "width_mm": band_width,
+            },
+            "length_mm": length,
+            "process_requirements": {
+                "pre_mill": {
+                    "required": True,
+                    "removal_mm": band_thickness,
+                },
+            },
+        })
+
+    return resolved_edges
 
 
 def _resolve_hole_array(

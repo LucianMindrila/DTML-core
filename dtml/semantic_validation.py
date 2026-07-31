@@ -23,6 +23,65 @@ def validate_part_dimensions(width: float, height: float, thickness: float, path
         raise SemanticValidationError(f"{path}.thickness", "must be > 0")
 
 
+def validate_material_type(material: dict, expected: str, path: str) -> None:
+    """The schema can't check a referenced document's material_type — that's
+    cross-document. See EdgeTreatmentSpecification.md, acceptance criteria."""
+    actual = material.get("material_type")
+    if actual != expected:
+        raise SemanticValidationError(
+            path, f"referenced Material must be material_type '{expected}', got '{actual}'"
+        )
+
+
+def validate_construction_thickness(
+    construction: str, thickness: float, material_thickness_mm: float, path: str
+) -> None:
+    """v1 scope: stock always stays 18mm MFC — single_18mm resolves to one
+    sheet's thickness, bonded_double_18mm to two. See
+    MaterialSpecification.md, "Thickness cross-check: now enforced"."""
+    expected = material_thickness_mm if construction == "single_18mm" else 2 * material_thickness_mm
+    if thickness != expected:
+        raise SemanticValidationError(
+            f"{path}.thickness",
+            f"construction '{construction}' requires thickness={expected} "
+            f"(material thickness_mm={material_thickness_mm}) — got {thickness}",
+        )
+
+
+def validate_no_duplicate_edges(edge_treatments: list, path: str) -> None:
+    """Schema-valid, resolver-rejected — see EdgeTreatmentSpecification.md,
+    "Duplicate-edge rejection"."""
+    seen = set()
+    for i, treatment in enumerate(edge_treatments):
+        edge = treatment["edge"]
+        if edge in seen:
+            raise SemanticValidationError(
+                f"{path}[{i}].edge", f"duplicate edge_treatments entry for edge '{edge}'"
+            )
+        seen.add(edge)
+
+
+def validate_edge_band_dimensions(thickness_mm: float, width_mm: float, path: str) -> None:
+    if thickness_mm <= 0:
+        raise SemanticValidationError(f"{path}.thickness_mm", "must be > 0")
+    if width_mm <= 0:
+        raise SemanticValidationError(f"{path}.width_mm", "must be > 0")
+
+
+def validate_edge_band_material_thickness(
+    band_thickness_mm: float, material_thickness_mm: float, path: str
+) -> None:
+    """A Part cannot claim '1mm edging' while pointing at a Material stocked
+    at 2mm. See MaterialSpecification.md, "Thickness cross-check: now
+    enforced"."""
+    if band_thickness_mm != material_thickness_mm:
+        raise SemanticValidationError(
+            path,
+            f"band.thickness_mm ({band_thickness_mm}) must equal the "
+            f"referenced Material's thickness_mm ({material_thickness_mm})",
+        )
+
+
 def validate_hole_array_parameters(params: dict, thickness: float, path: str) -> None:
     # No unrecognised key survives the merge — currently the only
     # enforcement point, since instance_parameters is schema-open. See

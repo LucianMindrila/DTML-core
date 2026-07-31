@@ -1,0 +1,61 @@
+# Valid: a single top edge treatment, no feature instances. Proves
+# resolved_edges resolves band.material, checks its material_type,
+# checks band.thickness_mm against the Material's own thickness_mm, and
+# derives length_mm from the Part's finished width — see
+# docs/Specifications/EdgeTreatmentSpecification.md.
+
+x-dtml-schema: ../../../../schemas/part.schema.yaml
+
+namespace: cuttingedgebespoke.part
+id: part_with_edge_band
+name: "Single top edge band — resolver fixture"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "Edge-banding resolver work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [fixture, resolver]
+
+material:
+  ref: cuttingedgebespoke.material.egger_w1000_18mm
+  object_version: "1.0.0"
+
+construction: single_18mm
+
+thickness:
+  literal:
+    value: 18
+    unit: mm
+
+dimensions:
+  width:
+    literal:
+      value: 600
+      unit: mm
+  height:
+    literal:
+      value: 720
+      unit: mm
+
+reference_face: front
+
+edge_treatments:
+  - edge: top
+    treatment_type: edge_band
+    band:
+      material:
+        ref: cuttingedgebespoke.material.white_abs_1mm
+        object_version: "1.0.0"
+      thickness_mm:
+        literal: {value: 1, unit: mm}
+      width_mm:
+        literal: {value: 22, unit: mm}
+
+feature_instances: []

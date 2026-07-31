@@ -26,13 +26,15 @@ provenance:
 tags: [example, foundation]
 
 material:
-  ref: cuttingedgebespoke.material.birch_plywood
+  ref: cuttingedgebespoke.material.egger_w1000_18mm
   object_version: "1.0.0"
 
 thickness:
   literal:
     value: 18
     unit: mm
+
+construction: single_18mm
 
 dimensions:
   width:
@@ -46,15 +48,27 @@ dimensions:
 
 reference_face: front
 
-edge_banding:
+edge_treatments:
   - edge: top
-    applied: true
+    treatment_type: edge_band
+    band:
+      material:
+        ref: cuttingedgebespoke.material.white_abs_1mm
+        object_version: "1.0.0"
+      thickness_mm:
+        literal: {value: 1, unit: mm}
+      width_mm:
+        literal: {value: 22, unit: mm}
   - edge: bottom
-    applied: true
-  - edge: left
-    applied: false
-  - edge: right
-    applied: false
+    treatment_type: edge_band
+    band:
+      material:
+        ref: cuttingedgebespoke.material.white_abs_1mm
+        object_version: "1.0.0"
+      thickness_mm:
+        literal: {value: 1, unit: mm}
+      width_mm:
+        literal: {value: 22, unit: mm}
 
 feature_instances:
   - feature:

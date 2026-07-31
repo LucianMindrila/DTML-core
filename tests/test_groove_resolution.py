@@ -43,9 +43,41 @@ def endpoints_of(resolved: dict, instance_index: int = 0):
 def test_canonical_example():
     resolved = resolve_part(EXAMPLES_DIR / "panel_with_groove.part.yaml")
     assert_schema_valid(resolved)
-    assert resolved["resolution_version"] == "0.1.0"
+    assert resolved["resolution_version"] == "0.2.0"
+    assert resolved["construction"] == "single_18mm"
     assert resolved["dimensions"] == {"width_mm": 500, "height_mm": 300, "thickness_mm": 18}
     assert endpoints_of(resolved) == ((50, 150), (400, 150))
+
+    assert resolved["resolved_edges"] == [
+        {
+            "edge": "top",
+            "treatment_type": "edge_band",
+            "band": {
+                "material": {
+                    "ref": "cuttingedgebespoke.material.white_abs_1mm",
+                    "object_version": "1.0.0",
+                },
+                "thickness_mm": 1,
+                "width_mm": 22,
+            },
+            "length_mm": 500,
+            "process_requirements": {"pre_mill": {"required": True, "removal_mm": 1}},
+        },
+        {
+            "edge": "bottom",
+            "treatment_type": "edge_band",
+            "band": {
+                "material": {
+                    "ref": "cuttingedgebespoke.material.white_abs_1mm",
+                    "object_version": "1.0.0",
+                },
+                "thickness_mm": 1,
+                "width_mm": 22,
+            },
+            "length_mm": 500,
+            "process_requirements": {"pre_mill": {"required": True, "removal_mm": 1}},
+        },
+    ]
 
     feature = resolved["resolved_features"][0]
     assert feature["feature_type"] == "groove"

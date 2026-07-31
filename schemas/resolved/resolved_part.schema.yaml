@@ -159,20 +159,77 @@ $defs:
       - $ref: "#/$defs/resolved_feature_hole_array"
       - $ref: "#/$defs/resolved_feature_groove"
 
+  resolved_edge:
+    type: object
+    description: >
+      One treated edge. Not a resolved_feature branch — see
+      docs/Specifications/ResolvedGeometrySpecification.md and
+      EdgeTreatmentSpecification.md. Only edges that actually carry a
+      treatment appear in resolved_part.resolved_edges; there is no
+      "applied: false" placeholder entry.
+    required: [edge, treatment_type, band, length_mm, process_requirements]
+    properties:
+      edge: {type: string, enum: [top, bottom, left, right]}
+      treatment_type: {type: string, enum: [edge_band]}
+      band:
+        type: object
+        required: [material, thickness_mm, width_mm]
+        properties:
+          material: {$ref: "../reference.schema.yaml#/$defs/reference"}
+          thickness_mm: {$ref: "#/$defs/positive_mm"}
+          width_mm: {$ref: "#/$defs/positive_mm"}
+        additionalProperties: false
+      length_mm:
+        $ref: "#/$defs/positive_mm"
+        description: >
+          Derived from the Part's own resolved, finished dimensions, not
+          carried from the source: width_mm for top/bottom, height_mm
+          for left/right. See EdgeTreatmentSpecification.md.
+      process_requirements:
+        type: object
+        required: [pre_mill]
+        properties:
+          pre_mill:
+            type: object
+            required: [required, removal_mm]
+            properties:
+              required: {type: boolean}
+              removal_mm:
+                $ref: "#/$defs/positive_mm"
+                description: >
+                  Always exactly band.thickness_mm — a manufacturing
+                  rule the resolver enforces (not schema-checkable, since
+                  JSON Schema can't compare two sibling values without
+                  $data, which this codebase doesn't use). See
+                  EdgeTreatmentSpecification.md, "Three-layer ownership
+                  split".
+            additionalProperties: false
+        additionalProperties: false
+    additionalProperties: false
+
   resolved_part:
     type: object
     required:
       - schema_version
       - resolution_version
       - source_part
+      - construction
       - dimensions
       - resolved_features
+      - resolved_edges
     properties:
       schema_version: {type: string}
       resolution_version:
         $ref: "../common.schema.yaml#/$defs/semantic_version"
         description: "Version of the resolver's own output contract/algorithm, independent of schema_version."
       source_part: {$ref: "../reference.schema.yaml#/$defs/reference"}
+      construction:
+        type: string
+        enum: [single_18mm, bonded_double_18mm]
+        description: >
+          Passed through unchanged from the source Part — see
+          docs/Specifications/PartSpecification.md. Not otherwise
+          resolved into per-layer geometry in v1.
       dimensions:
         type: object
         required: [width_mm, height_mm, thickness_mm]
@@ -184,4 +241,10 @@ $defs:
       resolved_features:
         type: array
         items: {$ref: "#/$defs/resolved_feature"}
+      resolved_edges:
+        type: array
+        description: >
+          Sparse — only edges that actually carry a treatment. See
+          docs/Specifications/EdgeTreatmentSpecification.md.
+        items: {$ref: "#/$defs/resolved_edge"}
     additionalProperties: false

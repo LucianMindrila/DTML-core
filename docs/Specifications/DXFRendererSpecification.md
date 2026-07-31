@@ -48,7 +48,15 @@ Explicitly deferred (not this milestone):
 - multi-Part/assembly layout (nesting several Parts onto one sheet);
 - text/dimension annotations, title blocks, or any human-readable layout
   beyond the raw geometry;
-- reading a DXF back into DTML (this is one-directional: DTML → DXF).
+- reading a DXF back into DTML (this is one-directional: DTML → DXF);
+- any geometric representation of `resolved_part.resolved_edges` — an
+  edge treatment is a manufacturing process requirement (which edge, what
+  band, how much to pre-mill), not a shape. It has no outline, no
+  hatch, no distinct DXF entity in v0.1: `resolved_edges` is explicitly
+  non-geometric, and the panel outline the renderer already draws is the
+  Part's finished, banded size either way (`EdgeTreatmentSpecification.md`,
+  "The governing invariant"). A resolved Part with `resolved_edges`
+  entries renders identically to one without any.
 
 Acceptance criterion: given the committed resolved shelf-pin panel
 example, the renderer generates a valid DXF containing one correct
@@ -199,3 +207,7 @@ defensive fallback.
 - Rendering any Feature type other than `hole_array` and `groove` — the
   renderer rejects them explicitly (see "Entities" above); adding a third
   branch is `ResolvedGeometrySpecification.md`'s extension procedure.
+- Any geometric or annotated representation of edge banding — see
+  "v0.1 scope" above. `resolved_edges` is read by nobody in this module
+  today; a resolved Part carrying edge treatments renders exactly the
+  same outline/hole/groove geometry as one without.

@@ -1,0 +1,71 @@
+# Deliberately invalid: two edge_treatments entries both name edge:
+# top — schema-valid (the schema can't express "unique by one nested
+# key"), resolver-rejected. See
+# docs/Specifications/EdgeTreatmentSpecification.md, "Duplicate-edge
+# rejection".
+
+x-dtml-schema: ../../../../schemas/part.schema.yaml
+
+namespace: cuttingedgebespoke.part
+id: part_duplicate_edge_treatment
+name: "Duplicate edge treatment — resolver fixture"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "Edge-banding resolver work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [fixture, resolver]
+
+material:
+  ref: cuttingedgebespoke.material.egger_w1000_18mm
+  object_version: "1.0.0"
+
+construction: single_18mm
+
+thickness:
+  literal:
+    value: 18
+    unit: mm
+
+dimensions:
+  width:
+    literal:
+      value: 600
+      unit: mm
+  height:
+    literal:
+      value: 720
+      unit: mm
+
+reference_face: front
+
+edge_treatments:
+  - edge: top
+    treatment_type: edge_band
+    band:
+      material:
+        ref: cuttingedgebespoke.material.white_abs_1mm
+        object_version: "1.0.0"
+      thickness_mm:
+        literal: {value: 1, unit: mm}
+      width_mm:
+        literal: {value: 22, unit: mm}
+  - edge: top
+    treatment_type: edge_band
+    band:
+      material:
+        ref: cuttingedgebespoke.material.white_abs_1mm
+        object_version: "1.0.0"
+      thickness_mm:
+        literal: {value: 1, unit: mm}
+      width_mm:
+        literal: {value: 22, unit: mm}
+
+feature_instances: []

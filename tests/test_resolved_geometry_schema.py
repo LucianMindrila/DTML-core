@@ -15,11 +15,12 @@ from dtml.loader import SCHEMAS_DIR, load_yaml, schema_registry
 
 RESOLVED_GROOVE_PANEL = {
     "schema_version": "0.1",
-    "resolution_version": "0.1.0",
+    "resolution_version": "0.2.0",
     "source_part": {
         "ref": "cuttingedgebespoke.part.panel_with_groove",
         "object_version": "1.0.0",
     },
+    "construction": "single_18mm",
     "dimensions": {"width_mm": 500, "height_mm": 300, "thickness_mm": 18},
     "resolved_features": [
         {
@@ -48,6 +49,36 @@ RESOLVED_GROOVE_PANEL = {
                 "depth_mm": 6,
             },
         }
+    ],
+    "resolved_edges": [
+        {
+            "edge": "top",
+            "treatment_type": "edge_band",
+            "band": {
+                "material": {
+                    "ref": "cuttingedgebespoke.material.white_abs_1mm",
+                    "object_version": "1.0.0",
+                },
+                "thickness_mm": 1,
+                "width_mm": 22,
+            },
+            "length_mm": 500,
+            "process_requirements": {"pre_mill": {"required": True, "removal_mm": 1}},
+        },
+        {
+            "edge": "bottom",
+            "treatment_type": "edge_band",
+            "band": {
+                "material": {
+                    "ref": "cuttingedgebespoke.material.white_abs_1mm",
+                    "object_version": "1.0.0",
+                },
+                "thickness_mm": 1,
+                "width_mm": 22,
+            },
+            "length_mm": 500,
+            "process_requirements": {"pre_mill": {"required": True, "removal_mm": 1}},
+        },
     ],
 }
 

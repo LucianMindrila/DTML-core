@@ -1,0 +1,33 @@
+x-dtml-schema: ../schemas/material.schema.yaml
+
+namespace: cuttingedgebespoke.material
+id: egger_w1000_18mm
+name: "Egger W1000 ST9 Premium White, 18mm MFC"
+description: >
+  Panel stock — v1 material scope (18mm Egger UK MFC only, see
+  docs/Specifications/MaterialSpecification.md). Replaces the earlier
+  birch_plywood example, which fell outside the v1 scope (plywood is no
+  longer a supported material_family). decor_code/decor_name are
+  illustrative — confirm against DT Solutions' actual approved Egger UK
+  decor list before treating this as a real stocked item.
+schema_version: "0.2"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "Material v1 scope work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: unconfirmed
+  review_status: pending
+  reviewed_by: lucian
+  evidence: []
+tags: [example, foundation, v1_scope]
+
+material_type: panel_stock
+material_family: mfc
+manufacturer: egger
+market: UK
+decor_code: W1000
+decor_name: "Premium White ST9"
+thickness_mm: 18

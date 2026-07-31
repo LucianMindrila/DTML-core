@@ -1,0 +1,32 @@
+x-dtml-schema: ../schemas/material.schema.yaml
+
+namespace: cuttingedgebespoke.material
+id: white_abs_1mm
+name: "Egger W1000 matching edge band, 1mm"
+description: >
+  Edge-band stock, referenced by an edge treatment's `band.material` (see
+  docs/Specifications/EdgeTreatmentSpecification.md). v1 material scope:
+  Egger-matched decor, 1mm or 2mm thickness only — roll width, glue type,
+  feed rate and machine settings stay outside this contract (width lives
+  on the Part's own edge_treatment.band.width_mm instead). decor_code is
+  illustrative — confirm against DT Solutions' actual approved Egger UK
+  edge-band range.
+schema_version: "0.2"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "Material v1 scope work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: unconfirmed
+  review_status: pending
+  reviewed_by: lucian
+  evidence: []
+tags: [example, edge_banding, v1_scope]
+
+material_type: edge_band
+manufacturer: egger
+decor_code: W1000
+decor_name: "Premium White ST9"
+thickness_mm: 1

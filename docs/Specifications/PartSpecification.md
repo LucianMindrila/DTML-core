@@ -24,19 +24,28 @@ A side panel with one shelf-pin-array feature (full version in
 namespace: cuttingedgebespoke.part
 id: panel_with_shelf_pin_array
 material:
-  ref: cuttingedgebespoke.material.birch_plywood
+  ref: cuttingedgebespoke.material.egger_w1000_18mm
   object_version: "1.0.0"
 thickness:
   literal: {value: 18, unit: mm}
+construction: single_18mm
 dimensions:
   width: {literal: {value: 600, unit: mm}}
   height: {literal: {value: 720, unit: mm}}
 reference_face: front
-edge_banding:
-  - {edge: top, applied: true}
-  - {edge: bottom, applied: true}
-  - {edge: left, applied: false}
-  - {edge: right, applied: false}
+edge_treatments:
+  - edge: top
+    treatment_type: edge_band
+    band:
+      material: {ref: cuttingedgebespoke.material.white_abs_1mm, object_version: "1.0.0"}
+      thickness_mm: {literal: {value: 1, unit: mm}}
+      width_mm: {literal: {value: 22, unit: mm}}
+  - edge: bottom
+    treatment_type: edge_band
+    band:
+      material: {ref: cuttingedgebespoke.material.white_abs_1mm, object_version: "1.0.0"}
+      thickness_mm: {literal: {value: 1, unit: mm}}
+      width_mm: {literal: {value: 22, unit: mm}}
 feature_instances:
   - feature:
       ref: cuttingedgebespoke.feature.shelf_pin_array
@@ -66,6 +75,30 @@ inconsistent copies across the library; and pinning `object_version`
 means a Part's meaning doesn't silently change if the Material entry is
 later revised — reproducing an old Part always resolves the Material
 revision that was actually used.
+
+## `construction`: how the stock thickness is physically built up
+
+`construction` (`single_18mm | bonded_double_18mm`) records whether a
+Part is machined directly from one sheet of its referenced Material, or
+from two sheets bonded together to reach the finished thickness — most
+tops and some shelving, which need 36mm but are stocked at 18mm (see
+`MaterialSpecification.md`, "36mm slabs are bonded constructions, not a
+Material"). `part.material` always points at the 18mm stock item either
+way; `construction` is what tells the resolver whether to expect
+`thickness` to resolve to one sheet's thickness or twice it:
+
+```yaml
+material: {ref: cuttingedgebespoke.material.egger_w1000_18mm, object_version: "1.0.0"}
+thickness: {literal: {value: 36, unit: mm}}
+construction: bonded_double_18mm
+```
+
+The resolver cross-checks this (`ResolverSpecification.md`): a Part
+claiming `single_18mm` must resolve `thickness` to the referenced panel
+Material's own `thickness_mm`; one claiming `bonded_double_18mm` must
+resolve to twice it. There is no third value in v1 and no per-layer
+geometry — bonding is an assembly fact the resolver checks for
+consistency, not something it decomposes into layers.
 
 ## Dimensions and thickness are Expressions
 
@@ -143,23 +176,24 @@ instance (a hole, say) drilled from the `back`. Neither value is
 redundant; don't assume a Part's `reference_face` implies the same for
 every Feature placed on it.
 
-## Edge banding
+## Edge treatments
 
-`edge_banding` is optional at the Part level — a Part with no edge
-banding at all simply omits it. When present, each entry is one edge
-(`top | bottom | left | right`), whether banding is `applied`, and
-optionally a `material` reference that may differ from the Part's own
-material (a different finish/edge material than the panel face).
+`edge_treatments` is optional at the Part level — a Part with no banded
+edges at all simply omits it, or supplies `[]`. When present, each entry
+names one edge (`top | bottom | left | right`), a `treatment_type`
+(`edge_band` is the only value in v0.1), and a `band`: a material
+reference (which may, and typically does, differ from the Part's own
+`material` — a different edge finish than the panel face) plus the
+band's own `thickness_mm`/`width_mm` Expressions.
 
-**Convention (not schema-enforced):** list all four edges explicitly,
-with `applied: false` for the ones that aren't banded, as in the worked
-example above — an explicit `false` is a recorded fact; an omitted edge
-is just missing data, and the two shouldn't be conflated. The schema
-doesn't require all four edges or forbid duplicates (there's no
-`minItems`/`uniqueItems` constraint on the array); this is a documented
-convention, enforceable later by the Validation Engine, not by JSON
-Schema itself — the same pattern SchemaConventions.md uses for the
-`confidence: unconfirmed` production-reference rule.
+**Sparse by construction, not convention.** An edge with no treatment
+simply has no entry — there is no `applied: false` placeholder (a
+reversal of the earlier v0.2 draft, which listed all four edges with an
+explicit boolean flag). The schema does not forbid two entries naming the
+same edge; that's a resolver-level semantic rule, not a shape rule — see
+`EdgeTreatmentSpecification.md` for the full rationale, including why
+edge treatments aren't Feature instances and how they resolve into
+`resolved_edges`.
 
 ## Is an empty `feature_instances` array valid?
 

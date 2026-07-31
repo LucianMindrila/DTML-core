@@ -8,6 +8,18 @@
 # v0.2 replaces the inline holes/grooves arrays with Feature instances:
 # a Part instantiates a reusable Feature definition (feature.schema.yaml)
 # rather than embedding hole/groove geometry directly.
+#
+# edge_treatments replaces the earlier, thinner edge_banding array (an
+# {edge, applied, material} boolean-flag shape) with a typed treatment
+# carrying its own band material/thickness/width — see
+# docs/Specifications/EdgeTreatmentSpecification.md.
+#
+# construction records how this Part's stock thickness is physically built
+# up — single_18mm for a plain 18mm sheet, bonded_double_18mm for a 36mm
+# slab (tops, some shelving) glued from two 18mm layers. `material` always
+# points at the 18mm stock item either way; bonding never becomes a
+# separate 36mm Material. See PartSpecification.md and
+# MaterialSpecification.md.
 $id: part.schema.yaml
 $schema: https://json-schema.org/draft/2020-12/schema
 $ref: "#/$defs/part"
@@ -41,16 +53,54 @@ $defs:
         enum: [front, back]
     unevaluatedProperties: false
 
+  edge_treatment:
+    type: object
+    description: >
+      A treatment applied to one of the Part's own four fixed edges.
+      Not a Feature instance — no anchor, no feature_instances entry, no
+      Feature/Operation reference pair. See
+      docs/Specifications/EdgeTreatmentSpecification.md.
+    required: [edge, treatment_type, band]
+    properties:
+      edge:
+        type: string
+        enum: [top, bottom, left, right]
+      treatment_type:
+        type: string
+        enum: [edge_band]
+      band:
+        type: object
+        required: [material, thickness_mm, width_mm]
+        properties:
+          material:
+            $ref: "reference.schema.yaml#/$defs/reference"
+          thickness_mm:
+            $ref: "expression.schema.yaml#/$defs/expression"
+          width_mm:
+            $ref: "expression.schema.yaml#/$defs/expression"
+        unevaluatedProperties: false
+    unevaluatedProperties: false
+
   part:
     allOf:
       - $ref: "common.schema.yaml#/$defs/knowledge_object"
       - type: object
-        required: [material, thickness, dimensions, reference_face, feature_instances]
+        required: [material, thickness, construction, dimensions, reference_face, feature_instances]
         properties:
           material:
             $ref: "reference.schema.yaml#/$defs/reference"
           thickness:
             $ref: "expression.schema.yaml#/$defs/expression"
+          construction:
+            type: string
+            enum: [single_18mm, bonded_double_18mm]
+            description: >
+              How this Part's stock thickness is built up — v1 keeps this
+              vocabulary narrow (no generic multilayer-composite
+              framework). single_18mm: one 18mm sheet, thickness resolves
+              to 18mm. bonded_double_18mm: two 18mm layers glued into a
+              36mm slab, thickness resolves to 36mm. See
+              PartSpecification.md.
           dimensions:
             type: object
             required: [width, height]
@@ -62,17 +112,13 @@ $defs:
             type: string
             enum: [front, back]
             description: "Which face is being machined — see SchemaConventions.md."
-          edge_banding:
+          edge_treatments:
             type: array
-            items:
-              type: object
-              required: [edge, applied]
-              properties:
-                edge: {type: string, enum: [top, bottom, left, right]}
-                applied: {type: boolean}
-                material:
-                  $ref: "reference.schema.yaml#/$defs/reference"
-              unevaluatedProperties: false
+            description: >
+              Sparse by construction — an edge with no treatment simply
+              has no entry here. See
+              docs/Specifications/EdgeTreatmentSpecification.md.
+            items: {$ref: "#/$defs/edge_treatment"}
           feature_instances:
             type: array
             items: {$ref: "#/$defs/feature_instance"}
