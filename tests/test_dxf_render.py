@@ -13,13 +13,44 @@ import pytest
 
 from dtml.resolver import resolve_part
 from dxf.errors import UnsupportedFeatureType
-from dxf.layers import HOLES_BACK, HOLES_FRONT, PANEL_OUTLINE
+from dxf.layers import GROOVES_BACK, GROOVES_FRONT, HOLES_BACK, HOLES_FRONT, PANEL_OUTLINE
 from dxf.render import render_resolved_part
+from tests.test_resolved_geometry_schema import RESOLVED_GROOVE_PANEL
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 EXAMPLES_DIR = REPO_ROOT / "examples"
 
 EXPECTED_HOLE_CENTRES = [(20, 120), (20, 152), (20, 184), (20, 216), (20, 248)]
+
+# A resolved dict with a feature_type no schema branch currently permits
+# (resolved_part.schema.yaml's oneOf only has hole_array and groove) —
+# per DXFRendererSpecification.md, the renderer never re-validates its
+# input, so this synthetic shape is enough to exercise its own defensive
+# dispatch without needing a real "known but unimplemented" fixture.
+RESOLVED_UNSUPPORTED_FEATURE_PANEL = {
+    "schema_version": "0.1",
+    "resolution_version": "0.1.0",
+    "source_part": {
+        "ref": "cuttingedgebespoke.part.synthetic_unsupported",
+        "object_version": "1.0.0",
+    },
+    "dimensions": {"width_mm": 100, "height_mm": 100, "thickness_mm": 18},
+    "resolved_features": [
+        {
+            "instance_index": 0,
+            "feature_type": "pocket",
+            "feature": {
+                "ref": "cuttingedgebespoke.feature.synthetic_pocket",
+                "object_version": "1.0.0",
+            },
+            "operation": {
+                "ref": "cuttingedgebespoke.operation.synthetic_pocket",
+                "object_version": "1.0.0",
+            },
+            "reference_face": "front",
+        }
+    ],
+}
 
 
 def _resolved_shelf_pin_panel() -> dict:
@@ -76,20 +107,45 @@ def test_metadata_round_trips_through_save_and_reload(tmp_path):
     assert resolved["resolution_version"] in xdata
 
 
+def test_groove_lands_on_front_layer_with_correct_capsule_geometry():
+    """RESOLVED_GROOVE_PANEL: start (50,150) -> end (400,150), width 8mm
+    (radius 4mm), axis-aligned along +x. The expected capsule outline is
+    two straight sides 4mm above/below the centreline plus a semicircular
+    cap bulging past each endpoint — see
+    docs/Specifications/GrooveFeatureSpecification.md, "Geometry model",
+    and dxf.render._capsule_points' docstring for the vertex/bulge layout
+    this asserts against.
+    """
+    doc = render_resolved_part(RESOLVED_GROOVE_PANEL)
+    msp = doc.modelspace()
+
+    grooves = list(msp.query(f'LWPOLYLINE[layer=="{GROOVES_FRONT}"]'))
+    assert len(grooves) == 1
+    groove = grooves[0]
+    assert groove.closed
+    points = list(groove.get_points("xyseb"))
+    assert [(round(x, 6), round(y, 6)) for x, y, *_ in points] == [
+        (50, 154), (400, 154), (400, 146), (50, 146),
+    ]
+    bulges = [b for *_, b in points]
+    assert bulges == [0, -1, 0, -1]
+
+    assert list(msp.query(f'LWPOLYLINE[layer=="{GROOVES_BACK}"]')) == []
+
+
 def test_unsupported_feature_type_is_rejected_not_skipped():
     """Per ResolvedGeometrySpecification.md's three-way support rule: a
     resolved_feature the renderer doesn't recognise must fail the whole
-    render, never be silently omitted. The resolver itself never produces
-    a feature_type other than hole_array today, so this mutates an
-    otherwise-valid resolved dict to simulate a future branch this
-    renderer version doesn't yet implement.
+    render, never be silently omitted. RESOLVED_UNSUPPORTED_FEATURE_PANEL
+    uses a feature_type ("pocket") no resolved_part.schema.yaml branch
+    currently permits — the renderer doesn't re-validate its input (see
+    DXFRendererSpecification.md), so this synthetic shape is the only way
+    to exercise the dispatch's own defensive fallback now that both
+    implemented feature_types (hole_array, groove) render successfully.
     """
-    resolved = _resolved_shelf_pin_panel()
-    resolved["resolved_features"][0]["feature_type"] = "groove"
-
     with pytest.raises(UnsupportedFeatureType) as exc_info:
-        render_resolved_part(resolved)
-    assert exc_info.value.feature_type == "groove"
+        render_resolved_part(RESOLVED_UNSUPPORTED_FEATURE_PANEL)
+    assert exc_info.value.feature_type == "pocket"
 
 
 def test_renderer_never_touches_unresolved_source_documents(monkeypatch):

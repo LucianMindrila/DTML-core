@@ -51,8 +51,10 @@ Part/Feature documents exercising `dtml.resolver.resolve_part()` (see
 - `fixtures/resolver/invalid/` — Parts that are **schema-valid** but
   **resolver-invalid**: a bad reference, an unsupported `formula`
   Expression, a semantic-validation violation (non-integral count,
-  negative pitch, blind depth >= thickness), a hole landing outside
-  the Part's bounds, or a `feature_type` valid DTML but not implemented
+  negative pitch, blind depth >= thickness, zero-or-negative groove
+  width, groove depth >= thickness), a hole or groove landing outside
+  the Part's bounds (including the groove-specific inset-rectangle
+  radius check), or a `feature_type` valid DTML but not implemented
   by resolver v0.1 (`pocket_feature.feature.yaml` +
   `part_unsupported_feature_type.part.yaml` — see
   `../docs/Specifications/ResolvedGeometrySpecification.md`'s three-way
@@ -60,8 +62,9 @@ Part/Feature documents exercising `dtml.resolver.resolve_part()` (see
   of these too — that's the point: the resolver is the only layer that
   catches them.
 
-Both subdirectories reuse `examples/shelf_pin_array.feature.yaml` and
-`examples/vertical_drill.operation.yaml` by reference (found via the
+Both subdirectories reuse `examples/shelf_pin_array.feature.yaml`,
+`examples/vertical_drill.operation.yaml`, `examples/straight_groove.feature.yaml`,
+and `examples/router_groove.operation.yaml` by reference (found via the
 resolver's default search roots) rather than duplicating them — one
 exception is `fixtures/resolver/valid/through_dowel_array.feature.yaml`,
 a small colocated Feature fixture needed because none of the canonical
@@ -69,9 +72,10 @@ a small colocated Feature fixture needed because none of the canonical
 
 ### `pytest` suite
 
-`test_expression_resolution.py`, `test_parameter_merge.py`, and
-`test_hole_array_resolution.py` cover the resolver's individual modules
-and its full ten-stage pipeline respectively. Run with:
+`test_expression_resolution.py`, `test_parameter_merge.py`,
+`test_hole_array_resolution.py`, and `test_groove_resolution.py` cover
+the resolver's individual modules and its full pipeline for each
+`feature_type` respectively. Run with:
 
 ```bash
 python -m pytest tests/ -v
@@ -89,8 +93,31 @@ per-layer hole count/diameter/centre, unit header variables, and the
 `DTML` XDATA metadata round-tripping through a save/reload cycle. One
 test asserts the acceptance criterion directly — that the renderer never
 touches the filesystem, i.e. never re-opens or re-parses a DTML source
-document from within the render path itself. Another proves the
+document from within the render path itself.
+
+Groove rendering is asserted against `RESOLVED_GROOVE_PANEL` (defined in
+`test_resolved_geometry_schema.py`, reused here): the true-size capsule
+outline lands on `GROOVES_FRONT` as a single closed `LWPOLYLINE` with the
+exact vertex/bulge values `dxf.render._capsule_points()` computes,
+independently cross-checked via `LWPolyline.virtual_entities()`
+decomposing it into two `LINE`s and two 180-degree `ARC`s of the correct
+radius, centred on each resolved endpoint. A separate test proves the
 renderer's `feature_type` conformance rule (see
-`../docs/Specifications/ResolvedGeometrySpecification.md`): an
-unrecognised `feature_type` raises `dxf.errors.UnsupportedFeatureType`
-and aborts the whole render, rather than being silently skipped.
+`../docs/Specifications/ResolvedGeometrySpecification.md`): since both
+implemented feature_types now render successfully, this uses a synthetic
+`RESOLVED_UNSUPPORTED_FEATURE_PANEL` dict (a `feature_type` no
+`resolved_part.schema.yaml` branch currently permits) rather than a
+schema-valid fixture — the renderer never re-validates its input, so this
+is enough to exercise the dispatch's own defensive fallback and confirm
+`dxf.errors.UnsupportedFeatureType` aborts the whole render rather than
+silently skipping the feature.
+
+## `test_resolved_geometry_schema.py`
+
+Validates `schemas/resolved/resolved_part.schema.yaml`'s polymorphic
+`resolved_feature` directly against hand-constructed dicts, independent
+of whether `dtml.resolver.resolve_part()` can actually produce that
+shape yet. `RESOLVED_GROOVE_PANEL` is a schema-valid
+`resolved_feature_groove` example — proves the branch added for groove
+validates, and is reused by `test_dxf_render.py` as the renderer's
+"known and schema-valid, but unsupported" conformance case.

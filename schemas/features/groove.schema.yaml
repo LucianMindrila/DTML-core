@@ -1,0 +1,72 @@
+# groove Feature schema — draft v0.1
+# A single straight, axis-aligned channel of constant width and depth,
+# stopped (round-capped) at both ends. See
+# docs/Specifications/GrooveFeatureSpecification.md for the full
+# rationale (groove_form, the capsule geometry model, the inset-rectangle
+# bounds rule, what's structurally enforced here vs. deferred to semantic
+# validation).
+$id: features/groove.schema.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+$ref: "#/$defs/groove_feature"
+$defs:
+  direction:
+    type: object
+    description: >
+      Relative to the Part's own local coordinate system (SchemaConventions.md,
+      "Part geometry conventions"), not the machine — axis/sense instead of
+      a positive_x/negative_x/... enum so a future third axis or reversed
+      convention doesn't require new enum members.
+    required: [axis, sense]
+    properties:
+      axis: {type: string, enum: [x, y]}
+      sense: {type: string, enum: [positive, negative]}
+    additionalProperties: false
+
+  groove_parameters:
+    type: object
+    description: >
+      Complete typed shape for a groove Feature definition's parameters.
+      A Part's feature_instance.instance_parameters may override any
+      subset of these keys for a specific placement — the Feature
+      definition itself must supply the full set.
+    required: [width, depth, length, direction, groove_form]
+    properties:
+      width:
+        $ref: "../expression.schema.yaml#/$defs/expression"
+        description: >
+          Full width of the cut, perpendicular to the centreline. Also
+          fixes the capsule's cap radius (width / 2) — see
+          GrooveFeatureSpecification.md, "Geometry model".
+      depth:
+        $ref: "../expression.schema.yaml#/$defs/expression"
+        description: >
+          Measured positively from the referenced face inward, constant
+          along the whole length — see SchemaConventions.md, "Face-local
+          coordinates and depth".
+      length:
+        $ref: "../expression.schema.yaml#/$defs/expression"
+        description: >
+          Centreline length from feature_instance.position (the start
+          point) to the computed end point, along direction.
+      direction:
+        $ref: "#/$defs/direction"
+      groove_form:
+        type: string
+        enum: [stopped]
+        description: >
+          Only "stopped" is permitted in v0.1: both centreline endpoints
+          are interior to the Part face and round-capped by the cutter.
+          Edge-exit/open-ended grooves are a future, deliberately
+          differently-named value — see
+          GrooveFeatureSpecification.md, "Why groove_form is an explicit
+          field, not an unstated assumption".
+    unevaluatedProperties: false
+
+  groove_feature:
+    allOf:
+      - $ref: "../feature.schema.yaml#/$defs/feature"
+      - type: object
+        properties:
+          feature_type: {const: groove}
+          parameters: {$ref: "#/$defs/groove_parameters"}
+    unevaluatedProperties: false

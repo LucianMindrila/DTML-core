@@ -53,10 +53,9 @@ def resolve_part(part_path: Path, search_roots: list[Path] | None = None) -> dic
         feature = resolve_reference(instance["feature"], index, f"{instance_path}.feature")
         resolve_reference(feature["operation"], index, f"{instance_path}.feature.operation")
 
-        if feature.get("feature_type") != "hole_array":
-            raise UnsupportedFeatureType(
-                f"{instance_path}.feature", feature.get("feature_type")
-            )
+        feature_type = feature.get("feature_type")
+        if feature_type not in ("hole_array", "groove"):
+            raise UnsupportedFeatureType(f"{instance_path}.feature", feature_type)
 
         # Stage 4 (Feature-level): resolve defaults and overrides
         # independently, before merging — see ResolverSpecification.md.
@@ -71,63 +70,16 @@ def resolve_part(part_path: Path, search_roots: list[Path] | None = None) -> dic
         # Stage 5: merge.
         effective_params = merge.deep_merge(default_params, override_params)
 
-        # Stage 6: semantic validation of effective parameters.
-        semantic_validation.validate_hole_array_parameters(
-            effective_params, thickness, f"{instance_path}.effective_parameters"
-        )
-
-        # Stage 7: generate coordinates.
-        start_offset = effective_params.get("start_offset", 0)
-        direction = effective_params["direction"]
-        count = int(effective_params["count"])
-        centres = coordinate_system.generate_hole_centres(
-            anchor=(anchor["x"], anchor["y"]),
-            start_offset=start_offset,
-            pitch=effective_params["pitch"],
-            count=count,
-            axis=direction["axis"],
-            sense=direction["sense"],
-        )
-
-        hole_form = effective_params["hole_form"]
-        depth = effective_params["depth"] if hole_form == "blind" else thickness
-
-        holes = []
-        for hole_index, (x, y, z) in enumerate(centres):
-            # Stage 8: geometry bounds, radius-aware.
-            semantic_validation.validate_hole_bounds(
-                (x, y), effective_params["diameter"], width, height,
-                f"{instance_path}.holes[{hole_index}]",
-            )
-            holes.append({
-                "index": hole_index,
-                "centre_mm": {"x": x, "y": y, "z": z},
-                "diameter_mm": effective_params["diameter"],
-                "depth_mm": depth,
-                "hole_form": hole_form,
-            })
-
-        effective_parameters_out = {
-            "diameter_mm": effective_params["diameter"],
-            "hole_form": hole_form,
-            "pitch_mm": effective_params["pitch"],
-            "count": count,
-            "start_offset_mm": start_offset,
-            "direction": direction,
-        }
-        if hole_form == "blind":
-            effective_parameters_out["depth_mm"] = depth
-
-        resolved_features.append({
-            "instance_index": i,
-            "feature_type": "hole_array",
-            "feature": instance["feature"],
-            "operation": feature["operation"],
-            "reference_face": instance["reference_face"],
-            "anchor_mm": {"x": anchor["x"], "y": anchor["y"]},
-            "effective_parameters": effective_parameters_out,
-            "geometry": {"holes": holes},
-        })
+        if feature_type == "hole_array":
+            resolved_features.append(_resolve_hole_array(
+                instance, feature, effective_params, anchor, thickness, width, height,
+                i, instance_path,
+            ))
+        else:
+            resolved_features.append(_resolve_groove(
+                instance, feature, effective_params, anchor, thickness, width, height,
+                i, instance_path,
+            ))
 
     # Stage 9: emit resolved model.
     resolved_part = {
@@ -157,3 +109,115 @@ def resolve_part(part_path: Path, search_roots: list[Path] | None = None) -> dic
         )
 
     return resolved_part
+
+
+def _resolve_hole_array(
+    instance: dict, feature: dict, effective_params: dict, anchor: dict,
+    thickness: float, width: float, height: float, i: int, instance_path: str,
+) -> dict:
+    # Stage 6: semantic validation of effective parameters.
+    semantic_validation.validate_hole_array_parameters(
+        effective_params, thickness, f"{instance_path}.effective_parameters"
+    )
+
+    # Stage 7: generate coordinates.
+    start_offset = effective_params.get("start_offset", 0)
+    direction = effective_params["direction"]
+    count = int(effective_params["count"])
+    centres = coordinate_system.generate_hole_centres(
+        anchor=(anchor["x"], anchor["y"]),
+        start_offset=start_offset,
+        pitch=effective_params["pitch"],
+        count=count,
+        axis=direction["axis"],
+        sense=direction["sense"],
+    )
+
+    hole_form = effective_params["hole_form"]
+    depth = effective_params["depth"] if hole_form == "blind" else thickness
+
+    holes = []
+    for hole_index, (x, y, z) in enumerate(centres):
+        # Stage 8: geometry bounds, radius-aware.
+        semantic_validation.validate_hole_bounds(
+            (x, y), effective_params["diameter"], width, height,
+            f"{instance_path}.holes[{hole_index}]",
+        )
+        holes.append({
+            "index": hole_index,
+            "centre_mm": {"x": x, "y": y, "z": z},
+            "diameter_mm": effective_params["diameter"],
+            "depth_mm": depth,
+            "hole_form": hole_form,
+        })
+
+    effective_parameters_out = {
+        "diameter_mm": effective_params["diameter"],
+        "hole_form": hole_form,
+        "pitch_mm": effective_params["pitch"],
+        "count": count,
+        "start_offset_mm": start_offset,
+        "direction": direction,
+    }
+    if hole_form == "blind":
+        effective_parameters_out["depth_mm"] = depth
+
+    return {
+        "instance_index": i,
+        "feature_type": "hole_array",
+        "feature": instance["feature"],
+        "operation": feature["operation"],
+        "reference_face": instance["reference_face"],
+        "anchor_mm": {"x": anchor["x"], "y": anchor["y"]},
+        "effective_parameters": effective_parameters_out,
+        "geometry": {"holes": holes},
+    }
+
+
+def _resolve_groove(
+    instance: dict, feature: dict, effective_params: dict, anchor: dict,
+    thickness: float, width: float, height: float, i: int, instance_path: str,
+) -> dict:
+    # Stage 6: semantic validation of effective parameters.
+    semantic_validation.validate_groove_parameters(
+        effective_params, thickness, f"{instance_path}.effective_parameters"
+    )
+
+    # Stage 7: generate coordinates — the centreline start is the anchor
+    # itself (see GrooveFeatureSpecification.md, "Parameter shape"); the
+    # end is computed from length and direction.
+    direction = effective_params["direction"]
+    start = (anchor["x"], anchor["y"], 0.0)
+    end = coordinate_system.generate_groove_endpoint(
+        anchor=(anchor["x"], anchor["y"]),
+        length=effective_params["length"],
+        axis=direction["axis"],
+        sense=direction["sense"],
+    )
+
+    # Stage 8: geometry bounds — inset-rectangle rule, both endpoints.
+    semantic_validation.validate_groove_bounds(
+        (start[0], start[1]), (end[0], end[1]), effective_params["width"],
+        width, height, f"{instance_path}.geometry",
+    )
+
+    return {
+        "instance_index": i,
+        "feature_type": "groove",
+        "feature": instance["feature"],
+        "operation": feature["operation"],
+        "reference_face": instance["reference_face"],
+        "effective_parameters": {
+            "width_mm": effective_params["width"],
+            "depth_mm": effective_params["depth"],
+            "length_mm": effective_params["length"],
+            "direction": direction,
+            "groove_form": effective_params["groove_form"],
+        },
+        "geometry": {
+            "start_mm": {"x": start[0], "y": start[1], "z": start[2]},
+            "end_mm": {"x": end[0], "y": end[1], "z": end[2]},
+            "width_mm": effective_params["width"],
+            "depth_mm": effective_params["depth"],
+        },
+    }

@@ -1,0 +1,37 @@
+x-dtml-schema: ../../../schemas/features/groove.schema.yaml
+
+# Deliberately invalid: feed_rate is not part of groove's typed
+# parameter shape — it's a machine-specific execution setting, which
+# OperationSpecification.md explicitly says does not belong on a
+# Feature (or an Operation) at all. unevaluatedProperties: false on the
+# composed groove_parameters shape must reject it.
+
+namespace: cuttingedgebespoke.feature
+id: groove_unknown_parameter
+name: "Invalid fixture — unrecognised parameter key"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "groove Feature work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [fixture, groove]
+
+feature_type: groove
+parameters:
+  width: {literal: {value: 8, unit: mm}}
+  depth: {literal: {value: 6, unit: mm}}
+  length: {literal: {value: 400, unit: mm}}
+  direction: {axis: x, sense: positive}
+  groove_form: stopped
+  feed_rate: {literal: {value: 3000, unit: mm}}
+
+operation:
+  ref: cuttingedgebespoke.operation.router_groove
+  object_version: "1.0.0"

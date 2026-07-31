@@ -16,7 +16,7 @@ composition, which is out of scope until later phases (`Roadmap.md`).
 Supports:
 
 - flat, rectangular Parts only;
-- exactly one Feature type: `hole_array`;
+- two Feature types: `hole_array` and `groove`;
 - literal Expressions only (`formula`/`rule_reference` are valid DTML,
   rejected by this resolver version with a precise "unsupported by
   resolver v0.1" error, not a schema error);
@@ -35,7 +35,9 @@ Explicitly deferred:
 - rotational placement;
 - assembly/world (Module/Furniture/Room) coordinates;
 - `formula`/`rule_reference` Expression evaluation;
-- multiple Feature types per resolution run;
+- any Feature type beyond `hole_array` and `groove` (rejected with
+  `UnsupportedFeatureType`, per `ResolvedGeometrySpecification.md`'s
+  three-way support rule);
 - capability/manufacturing resolution (machine setup, post-processor
   coordinates);
 - DXF or any other rendered output.
@@ -43,15 +45,21 @@ Explicitly deferred:
 Acceptance criterion: the resolver deterministically converts the
 `panel_with_shelf_pin_array`/`shelf_pin_array` example into a
 schema-valid resolved Part with explicit, face-local hole coordinates,
-and rejects each known semantic failure with a precise path.
+and the `panel_with_groove`/`straight_groove` example into a schema-valid
+resolved Part with explicit, face-local groove centreline endpoints, and
+rejects each known semantic failure with a precise path.
 
 ## Pipeline stages
 
 Implemented as explicit, separately testable phases (`dtml/` package),
-not one large function — this is deliberately over-structured for what
-`hole_array` alone needs, because every later Feature type and the
-eventual `formula`/`rule_reference` evaluator plugs into the same
-pipeline rather than forcing a rewrite:
+not one large function — this was deliberately over-structured for what
+`hole_array` alone needed, so that `groove` and the eventual
+`formula`/`rule_reference` evaluator could plug into the same pipeline
+rather than forcing a rewrite. That bet has now paid off once: stages
+1-5 are common to every Feature type; stages 6-8 dispatch on
+`feature_type` (`dtml/resolver.py`'s `_resolve_hole_array()` and
+`_resolve_groove()`), each computing and returning one
+`resolved_features` entry:
 
 1. **Load** — read the Part YAML document (`dtml.loader`).
 2. **Validate source documents** — the Part, and every Feature/Operation
@@ -138,6 +146,22 @@ physically (`SchemaConventions.md`), not something this stage needs to
 account for. A face-local → machine/physical transform is capability
 resolution, out of scope here.
 
+`groove`'s coordinate generation is simpler — no array, just a single
+centreline — but reuses the same anchor + direction vector:
+
+```
+anchor = (ax, ay)                  # feature_instance.position, resolved
+length = l                         # effective_parameters.length
+start = anchor
+end = anchor + direction_vector * l
+z = 0                              # both endpoints, same reasoning as above
+```
+
+`depth` is independent of this calculation, exactly as for `hole_array`:
+always positive, always measured inward from the referenced face. There
+is no offset/pitch/count analogue for `groove` — the Feature is a single
+centreline segment, not an array.
+
 ## Semantic validation rules (stage 6 and 8)
 
 Structural (schema) validation deliberately leaves these open — see
@@ -185,6 +209,32 @@ edge would otherwise produce a partially missing hole. Violations report
 the resolved centre, radius, and Part bounds, plus the generated hole's
 index — e.g. `resolved_features[0].holes[4]`.
 
+`groove` effective parameters:
+
+- `width > 0`, `length > 0`.
+- `depth > 0` and `depth < thickness` (strictly less, same reasoning as
+  `hole_array`'s blind-hole rule: `depth == thickness` is a through
+  groove mis-described as stopped — and `groove_form` only permits
+  `stopped` in v0.1, per `GrooveFeatureSpecification.md`).
+- No unrecognised key survives the merge, same rule and same reason as
+  `hole_array`'s.
+
+Geometry bounds (stage 8) for `groove`, using `radius = width / 2` and
+checking **both** resolved centreline endpoints (`start`, `end`):
+
+```
+radius <= x <= width_part - radius
+radius <= y <= height_part - radius
+```
+
+the inset-rectangle rule from `GrooveFeatureSpecification.md`, "Geometry
+model" — the swept capsule's caps bulge a further `radius` past each
+endpoint along the direction of travel, so checking the raw endpoint
+against the bare Part bounds (`0 <= x <= width_part`) would let the
+capsule's rounded cap cut into or past the Part's edge. Violations report
+which endpoint (`start` or `end`) failed, the resolved coordinate,
+radius, and Part bounds.
+
 ## Reference resolution
 
 References (`feature_instance.feature`, and a Feature definition's own
@@ -202,7 +252,9 @@ actually checks it at run time).
 Search roots default to `[the input file's own directory, examples/]`,
 so `tests/fixtures/resolver/` fixtures can reference the canonical
 `examples/shelf_pin_array.feature.yaml` and
-`examples/vertical_drill.operation.yaml` without duplicating them —
+`examples/vertical_drill.operation.yaml` — or, for groove fixtures,
+`examples/straight_groove.feature.yaml` and
+`examples/router_groove.operation.yaml` — without duplicating them,
 consistent with `tests/README.md`'s "don't duplicate an example" rule.
 `tools/resolve_part.py --search-root <dir>` adds further roots.
 
@@ -218,8 +270,8 @@ the referencing document is itself perfectly schema-valid.
 `feature_type` — see `ResolvedGeometrySpecification.md` for the full
 contract (common envelope, `oneOf` branches, the three-way
 unknown/unsupported/supported `feature_type` rule, and the extension
-procedure for adding a new branch). In outline, for the one branch
-implemented today (`hole_array`):
+procedure for adding a new branch). In outline, for the two branches
+implemented today:
 
 ```yaml
 schema_version: "0.1"
@@ -241,7 +293,25 @@ resolved_features:
           diameter_mm: ...
           depth_mm: ...
           hole_form: ...
+  - instance_index: 0
+    feature_type: groove
+    feature: {ref: ..., object_version: ...}
+    operation: {ref: ..., object_version: ...}
+    reference_face: front
+    effective_parameters: {width_mm, depth_mm, length_mm, direction, groove_form}
+    geometry:
+      start_mm: {x, y, z}
+      end_mm: {x, y, z}
+      width_mm: ...
+      depth_mm: ...
 ```
+
+(the two entries above would never actually appear in the same
+`resolved_features` array in v0.1 — each committed example resolves one
+Feature instance of one type — they're shown together here purely to
+contrast the two branches' shapes.) `groove` has no `anchor_mm`; see
+`ResolvedGeometrySpecification.md` for why that field is branch-specific
+rather than common.
 
 `resolution_version` versions the resolver's own output contract and
 algorithm, independently of `schema_version` (the source DTML schema
@@ -278,26 +348,33 @@ relaxation of the earlier structural-vs-semantic principle.
 ## What's not built yet
 
 - `formula`/`rule_reference` evaluation.
-- Any Feature type other than `hole_array`.
+- Any Feature type other than `hole_array` and `groove` (rejected with
+  `UnsupportedFeatureType`).
 - Non-rectangular Parts, rotation, assembly/world coordinates (see
   `SchemaConventions.md`, "v0.1 resolver scope").
-- Capability/manufacturing resolution and DXF generation — the next
-  milestone after this one is green in CI, expected to be a small,
-  low-risk follow-on consuming `resolved_part.schema.yaml` rather than
-  another architecture exercise.
+- Capability/manufacturing resolution and DXF generation — DXF rendering
+  for both implemented Feature types now exists (`dxf/`,
+  `DXFRendererSpecification.md`), but capability/manufacturing
+  resolution (machine setup, post-processor coordinates) remains
+  out of scope.
 
 ## Status: implemented and tested
 
 `dtml/` (loader, references, expressions, merge, semantic_validation,
 coordinate_system, resolver) and `tools/resolve_part.py` implement all
-ten stages above. `tools/resolve_part.py
-examples/panel_with_shelf_pin_array.part.yaml` deterministically produces
-a schema-valid resolved Part with the expected five hole coordinates.
+ten stages above for both `hole_array` and `groove`.
+`tools/resolve_part.py examples/panel_with_shelf_pin_array.part.yaml`
+deterministically produces a schema-valid resolved Part with the
+expected five hole coordinates; `tools/resolve_part.py
+examples/panel_with_groove.part.yaml` deterministically produces a
+schema-valid resolved Part with the expected groove centreline
+endpoints.
 
 `tests/test_expression_resolution.py`, `tests/test_parameter_merge.py`,
-and `tests/test_hole_array_resolution.py` (32 tests, all passing) cover
-the individual modules and the full pipeline end to end, including every
-case in the acceptance criterion above plus the semantic-validation and
-geometry-bounds failure modes — see `tests/README.md`, "`fixtures/resolver/`"
-for what each fixture proves and why the invalid ones are schema-valid but
-resolver-rejected.
+`tests/test_hole_array_resolution.py`, and `tests/test_groove_resolution.py`
+(43 tests across the four files, all passing) cover the individual
+modules and the full pipeline end to end for each `feature_type`,
+including every case in the acceptance criterion above plus the
+semantic-validation and geometry-bounds failure modes — see
+`tests/README.md`, "`fixtures/resolver/`" for what each fixture proves
+and why the invalid ones are schema-valid but resolver-rejected.

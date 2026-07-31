@@ -1,0 +1,62 @@
+# Invalid: effective depth (18mm) equals the Part's own thickness
+# (18mm) exactly — the rule is strictly less-than (mirrors
+# part_blind_depth_equal_thickness.part.yaml for hole_array).
+
+x-dtml-schema: ../../../../schemas/part.schema.yaml
+
+namespace: cuttingedgebespoke.part
+id: part_groove_depth_equal_thickness
+name: "Groove depth equals thickness — resolver fixture"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "groove Feature work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [fixture, resolver]
+material:
+  ref: cuttingedgebespoke.material.birch_plywood
+  object_version: "1.0.0"
+
+thickness:
+  literal:
+    value: 18
+    unit: mm
+
+dimensions:
+  width:
+    literal:
+      value: 500
+      unit: mm
+  height:
+    literal:
+      value: 300
+      unit: mm
+
+reference_face: front
+
+feature_instances:
+  - feature:
+      ref: cuttingedgebespoke.feature.straight_groove
+      object_version: "1.0.0"
+    instance_parameters:
+      depth:
+        literal:
+          value: 18
+          unit: mm
+    position:
+      x:
+        literal:
+          value: 50
+          unit: mm
+      y:
+        literal:
+          value: 150
+          unit: mm
+    reference_face: front

@@ -1,0 +1,64 @@
+# Valid: instance overrides only `depth`; `width`, `length`,
+# `direction`, `groove_form` all retain the Feature's own defaults.
+# Proves a single-key override doesn't disturb the rest of the merged
+# parameter set (mirrors part_instance_override_count.part.yaml for
+# hole_array).
+
+x-dtml-schema: ../../../../schemas/part.schema.yaml
+
+namespace: cuttingedgebespoke.part
+id: part_groove_override_depth
+name: "Groove instance overrides only depth — resolver fixture"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "groove Feature work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [fixture, resolver]
+material:
+  ref: cuttingedgebespoke.material.birch_plywood
+  object_version: "1.0.0"
+
+thickness:
+  literal:
+    value: 18
+    unit: mm
+
+dimensions:
+  width:
+    literal:
+      value: 500
+      unit: mm
+  height:
+    literal:
+      value: 300
+      unit: mm
+
+reference_face: front
+
+feature_instances:
+  - feature:
+      ref: cuttingedgebespoke.feature.straight_groove
+      object_version: "1.0.0"
+    instance_parameters:
+      depth:
+        literal:
+          value: 10
+          unit: mm
+    position:
+      x:
+        literal:
+          value: 50
+          unit: mm
+      y:
+        literal:
+          value: 150
+          unit: mm
+    reference_face: front

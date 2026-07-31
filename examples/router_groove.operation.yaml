@@ -1,0 +1,25 @@
+x-dtml-schema: ../schemas/operation.schema.yaml
+
+namespace: cuttingedgebespoke.operation
+id: router_groove
+name: "Router groove"
+description: >
+  A groove cut with a round-nosed router bit, stopped short of both
+  centreline ends. Machine-independent — see docs/ReferenceImplementation.md
+  for how a specific CNC executes this via a capability profile.
+schema_version: "0.1"
+object_version: "1.0.0"
+status: active
+provenance:
+  source_type: narrated
+  source_reference: "groove Feature work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [operation, routing]
+
+operation_type: groove
+parameters: {}

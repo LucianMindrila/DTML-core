@@ -112,14 +112,52 @@ $defs:
             additionalProperties: false
     unevaluatedProperties: false
 
+  groove_effective_parameters:
+    type: object
+    required: [width_mm, depth_mm, length_mm, direction, groove_form]
+    properties:
+      width_mm: {$ref: "#/$defs/positive_mm"}
+      depth_mm: {$ref: "#/$defs/positive_mm"}
+      length_mm: {$ref: "#/$defs/positive_mm"}
+      direction: {$ref: "#/$defs/direction"}
+      groove_form: {type: string, enum: [stopped]}
+    additionalProperties: false
+
+  resolved_feature_groove:
+    allOf:
+      - $ref: "#/$defs/resolved_feature_common"
+      - type: object
+        required: [effective_parameters, geometry]
+        properties:
+          feature_type: {const: groove}
+          effective_parameters: {$ref: "#/$defs/groove_effective_parameters"}
+          geometry:
+            type: object
+            description: >
+              start_mm/end_mm are the resolved centreline endpoints —
+              cutter-centre positions, not the capsule's physical
+              extremes. See docs/Specifications/
+              GrooveFeatureSpecification.md, "Geometry model", for why
+              the true footprint extends width_mm / 2 past each
+              endpoint along the direction of travel.
+            required: [start_mm, end_mm, width_mm, depth_mm]
+            properties:
+              start_mm: {$ref: "#/$defs/point3"}
+              end_mm: {$ref: "#/$defs/point3"}
+              width_mm: {$ref: "#/$defs/positive_mm"}
+              depth_mm: {$ref: "#/$defs/positive_mm"}
+            additionalProperties: false
+    unevaluatedProperties: false
+
   resolved_feature:
     description: >
       Polymorphic — one branch per feature_type. See
-      docs/Specifications/ResolvedGeometrySpecification.md. Only
-      hole_array is implemented today; a new Feature type adds a new
+      docs/Specifications/ResolvedGeometrySpecification.md. hole_array
+      and groove are implemented today; a new Feature type adds a new
       branch here, never a special case bolted onto an existing one.
     oneOf:
       - $ref: "#/$defs/resolved_feature_hole_array"
+      - $ref: "#/$defs/resolved_feature_groove"
 
   resolved_part:
     type: object

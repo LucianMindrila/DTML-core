@@ -1,0 +1,32 @@
+x-dtml-schema: ../../../schemas/features/groove.schema.yaml
+
+# Deliberately invalid: width is required by groove_parameters and is
+# absent here. Proves the required list is actually enforced.
+
+namespace: cuttingedgebespoke.feature
+id: groove_missing_width
+name: "Invalid fixture — missing width"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "groove Feature work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [fixture, groove]
+
+feature_type: groove
+parameters:
+  depth: {literal: {value: 6, unit: mm}}
+  length: {literal: {value: 400, unit: mm}}
+  direction: {axis: x, sense: positive}
+  groove_form: stopped
+
+operation:
+  ref: cuttingedgebespoke.operation.router_groove
+  object_version: "1.0.0"

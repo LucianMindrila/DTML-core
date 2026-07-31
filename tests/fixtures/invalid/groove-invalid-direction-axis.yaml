@@ -1,0 +1,33 @@
+x-dtml-schema: ../../../schemas/features/groove.schema.yaml
+
+# Deliberately invalid: direction.axis must be x or y. Proves the
+# enum is enforced the same way it is for hole_array's direction.
+
+namespace: cuttingedgebespoke.feature
+id: groove_invalid_direction_axis
+name: "Invalid fixture — invalid direction axis"
+schema_version: "0.1"
+object_version: "1.0.0"
+status: draft
+provenance:
+  source_type: narrated
+  source_reference: "groove Feature work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [fixture, groove]
+
+feature_type: groove
+parameters:
+  width: {literal: {value: 8, unit: mm}}
+  depth: {literal: {value: 6, unit: mm}}
+  length: {literal: {value: 400, unit: mm}}
+  direction: {axis: z, sense: positive}
+  groove_form: stopped
+
+operation:
+  ref: cuttingedgebespoke.operation.router_groove
+  object_version: "1.0.0"

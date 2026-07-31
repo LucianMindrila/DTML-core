@@ -17,6 +17,17 @@ def direction_vector(axis: str, sense: str) -> tuple[int, int]:
     return _DIRECTION_VECTORS[(axis, sense)]
 
 
+def generate_groove_endpoint(
+    anchor: tuple[float, float], length: float, axis: str, sense: str
+) -> tuple[float, float, float]:
+    """Returns the resolved centreline end point, `length` away from
+    `anchor` along direction — the groove analogue of generate_hole_centres'
+    per-hole centre. z is always 0, same reasoning as generate_hole_centres."""
+    dx, dy = direction_vector(axis, sense)
+    ax, ay = anchor
+    return (ax + dx * length, ay + dy * length, 0.0)
+
+
 def generate_hole_centres(
     anchor: tuple[float, float],
     start_offset: float,

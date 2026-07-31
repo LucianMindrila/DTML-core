@@ -59,8 +59,9 @@ via `const`:
 resolved_feature:
   oneOf:
     - $ref: "#/$defs/resolved_feature_hole_array"
-    # future branches (groove, edge_band, ...) added here deliberately,
-    # one at a time, each forcing exactly one existing worked example.
+    - $ref: "#/$defs/resolved_feature_groove"
+    # future branches (edge_band, ...) added here deliberately, one at a
+    # time, each forcing exactly one existing worked example.
 ```
 
 Each branch combines the common envelope with its own type-specific
@@ -85,26 +86,26 @@ geometry:
       hole_form: ...
 ```
 
-### `groove` (worked example only — not implemented)
-
-Illustrates why the polymorphic model is needed, not a committed schema.
-No `schemas/features/groove.schema.yaml`, resolver support, or renderer
-support exists yet — this shape is a placeholder for the extension
-procedure below to produce for real:
+### `groove` (implemented)
 
 ```yaml
 feature_type: groove
-effective_parameters: {width_mm, depth_mm, ...}
+effective_parameters: {width_mm, depth_mm, length_mm, direction, groove_form}
 geometry:
-  start: {x_mm, y_mm}
-  end: {x_mm, y_mm}
+  start_mm: {x, y, z}
+  end_mm: {x, y, z}
   width_mm: ...
   depth_mm: ...
 ```
 
-A groove has no single point anchor — its geometry is a start/end pair —
-which is exactly the case `anchor_mm` being branch-specific rather than
-common is designed for.
+A groove has no single point anchor — its geometry is a start/end
+centreline pair — which is exactly the case `anchor_mm` being
+branch-specific rather than common is designed for. `start_mm`/`end_mm`
+are the resolved centreline endpoints (cutter-centre positions), not the
+swept capsule's physical extremes — see
+`GrooveFeatureSpecification.md`, "Geometry model", for why the capsule
+bulges past each endpoint by `width_mm / 2` along the direction of
+travel, and how the inset-rectangle bounds rule accounts for that.
 
 ## Three-way `feature_type` support rule
 
@@ -115,9 +116,11 @@ producing one, and any renderer consuming one:
    `feature_type` enum) — schema-invalid. Caught by JSON Schema
    validation itself; no dedicated code path needed.
 2. **Known to the DTML specification, unsupported by this
-   implementation's version** (e.g. `feature_type: groove` today) — an
-   explicit, dedicated "unsupported feature type" error. Not a schema
-   error, not a generic/vague error, and never silent.
+   implementation's version** (e.g. a future Feature type added to
+   `feature.schema.yaml`'s enum before this resolver/renderer version
+   implements it) — an explicit, dedicated "unsupported feature type"
+   error. Not a schema error, not a generic/vague error, and never
+   silent.
 3. **Known and supported** — processed/rendered deterministically.
 
 **Silent omission is prohibited.** A resolver or renderer encountering
@@ -139,7 +142,8 @@ internals).
 Any renderer consuming `resolved_part` must reject a `resolved_feature`
 whose `feature_type` it doesn't implement, per the three-way rule above,
 rather than skipping it and rendering everything else. `dxf.render`
-implements this today for every `feature_type` other than `hole_array`.
+implements this today for every `feature_type` other than `hole_array`
+and `groove`.
 
 ## Extension procedure — adding a new Feature type
 
@@ -169,15 +173,17 @@ Adding a new Feature type (e.g. `groove`) requires, in order:
 `hole_array`'s resolved output was migrated to this shape (flat `holes:
 [...]` wrapped under `geometry: {holes: [...]}`, plus an explicit
 `feature_type: hole_array` field) at the same time this document was
-written, rather than later — so that when `groove` becomes the second
-branch, both branches already share the same structural convention
+written, rather than later — so that when `groove` became the second
+branch, both branches already shared the same structural convention
 instead of `hole_array` needing a follow-up migration under time
-pressure.
+pressure. That bet paid off: `groove`'s addition (this document's
+extension procedure, followed step by step) required no changes to the
+`hole_array` branch or the common envelope.
 
 ## Status
 
-Implemented: the common envelope and the `hole_array` branch, in
-`schemas/resolved/resolved_part.schema.yaml`, `dtml/resolver.py`, and
-`dxf/render.py`. Not implemented: `groove` or any other branch — shown
-above purely as a worked example this document's extension procedure
-will produce for real.
+Implemented: the common envelope and both the `hole_array` and `groove`
+branches, in `schemas/resolved/resolved_part.schema.yaml`,
+`dtml/resolver.py`, and `dxf/render.py`. Not implemented: any further
+branch (e.g. `edge_band`) — the extension procedure above is what will
+produce one for real.

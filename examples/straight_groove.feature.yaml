@@ -1,0 +1,44 @@
+x-dtml-schema: ../schemas/features/groove.schema.yaml
+
+namespace: cuttingedgebespoke.feature
+id: straight_groove
+name: "Straight stopped groove"
+description: >
+  A single straight, axis-aligned groove of constant width and depth,
+  stopped short of both Part edges.
+schema_version: "0.1"
+object_version: "1.0.0"
+status: active
+provenance:
+  source_type: narrated
+  source_reference: "groove Feature work package, 2026-07-31"
+  captured_by: lucian
+  captured_at: "2026-07-31T00:00:00Z"
+  confidence: confirmed
+  review_status: approved
+  reviewed_by: lucian
+  evidence: []
+tags: [feature, groove]
+
+feature_type: groove
+parameters:
+  width:
+    literal:
+      value: 8
+      unit: mm
+  depth:
+    literal:
+      value: 6
+      unit: mm
+  length:
+    literal:
+      value: 400
+      unit: mm
+  direction:
+    axis: x
+    sense: positive
+  groove_form: stopped
+
+operation:
+  ref: cuttingedgebespoke.operation.router_groove
+  object_version: "1.0.0"

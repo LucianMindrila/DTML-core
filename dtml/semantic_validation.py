@@ -11,6 +11,8 @@ RECOGNISED_HOLE_ARRAY_KEYS = {
     "diameter", "hole_form", "depth", "pitch", "count", "start_offset", "direction",
 }
 
+RECOGNISED_GROOVE_KEYS = {"width", "depth", "length", "direction", "groove_form"}
+
 
 def validate_part_dimensions(width: float, height: float, thickness: float, path: str) -> None:
     if width <= 0:
@@ -57,6 +59,65 @@ def validate_hole_array_parameters(params: dict, thickness: float, path: str) ->
                 f"{path}.depth",
                 f"must be less than the Part's thickness (strictly) — "
                 f"got depth={depth}, thickness={thickness}",
+            )
+
+
+def validate_groove_parameters(params: dict, thickness: float, path: str) -> None:
+    # Mirrors validate_hole_array_parameters — see
+    # GrooveFeatureSpecification.md, "What's structurally enforced vs.
+    # semantic".
+    unknown = set(params) - RECOGNISED_GROOVE_KEYS
+    if unknown:
+        raise SemanticValidationError(
+            path, f"unrecognised parameter key(s): {sorted(unknown)}"
+        )
+
+    width = params["width"]
+    if width <= 0:
+        raise SemanticValidationError(f"{path}.width", "must be > 0")
+
+    length = params["length"]
+    if length <= 0:
+        raise SemanticValidationError(f"{path}.length", "must be > 0")
+
+    depth = params["depth"]
+    if depth <= 0:
+        raise SemanticValidationError(f"{path}.depth", "must be > 0")
+    if depth >= thickness:
+        raise SemanticValidationError(
+            f"{path}.depth",
+            f"must be less than the Part's thickness (strictly) — "
+            f"got depth={depth}, thickness={thickness}",
+        )
+
+
+def validate_groove_bounds(
+    start: tuple[float, float],
+    end: tuple[float, float],
+    groove_width: float,
+    part_width: float,
+    part_height: float,
+    path: str,
+) -> None:
+    """Inset-rectangle rule for a stopped groove — see
+    GrooveFeatureSpecification.md, "Bounds rule: inset rectangle, not raw
+    endpoint containment". Both centreline endpoints must lie within the
+    Part face inset by radius = groove_width / 2 from every boundary, so
+    the fully swept capsule (which bulges past each endpoint by that
+    radius, along the direction of travel) stays inside the Part."""
+    radius = groove_width / 2
+    for label, (x, y) in (("start", start), ("end", end)):
+        if not (radius <= x <= part_width - radius):
+            raise GeometryBoundsError(
+                path,
+                f"groove {label} x={x} (radius={radius}) is outside Part "
+                f"bounds [{radius}, {part_width - radius}] (width={part_width})",
+            )
+        if not (radius <= y <= part_height - radius):
+            raise GeometryBoundsError(
+                path,
+                f"groove {label} y={y} (radius={radius}) is outside Part "
+                f"bounds [{radius}, {part_height - radius}] (height={part_height})",
             )
 
 
